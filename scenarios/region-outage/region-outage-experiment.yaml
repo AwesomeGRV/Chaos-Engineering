@@ -1,0 +1,106 @@
+# Region Outage Chaos Experiment Configuration
+# This simulates a regional Azure service outage
+
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: azure-region-outage-experiment
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: disable-traffic-manager-endpoint
+      type: TrafficManagerEndpointDisable
+      duration: "PT10M"
+      parameters:
+        targetResourceType: "Microsoft.Network/trafficManagerProfiles"
+        targetResources:
+          - ""  # Traffic Manager Profile Resource ID
+        endpointName: ""  # Target endpoint name
+        
+    - name: simulate-azure-service-outage
+      type: AzureServiceOutage
+      duration: "PT10M"
+      parameters:
+        serviceType: "Microsoft.Storage/storageAccounts"
+        targetResources:
+          - ""  # Storage Account Resource IDs in target region
+        outageType: "partial"  # partial or complete
+
+---
+# Azure Front Door configuration for failover testing
+apiVersion: 2020-05-01
+kind: FrontDoor
+metadata:
+  name: region-outage-test-frontdoor
+  resourceGroup: ""  # Specify resource group
+properties:
+  frontendEndpoints:
+  - name: default
+    properties:
+      hostName: ""  # Specify domain
+      sessionAffinityEnabledState: "Disabled"
+  backendPools:
+  - name: primary-region-backend
+    properties:
+      backends:
+      - address: ""  # Primary region backend
+        httpPort: 80
+        httpsPort: 443
+        weight: 100
+        priority: 1
+        enabled: "Enabled"
+  - name: secondary-region-backend
+    properties:
+      backends:
+      - address: ""  # Secondary region backend
+        httpPort: 80
+        httpsPort: 443
+        weight: 100
+        priority: 2
+        enabled: "Enabled"
+  routingRules:
+  - name: primary-rule
+    properties:
+      frontendEndpoints:
+      - id: "/subscriptions/$(subscriptionId)/resourceGroups/$(resourceGroup)/providers/Microsoft.Network/frontDoors/$(frontDoorName)/frontendEndpoints/default"
+      acceptedProtocols:
+      - Http
+      - Https
+      patternsToMatch:
+      - "/*"
+      routeConfiguration:
+        forwardingProtocol: "HttpOnly"
+        backendPool:
+          id: "/subscriptions/$(subscriptionId)/resourceGroups/$(resourceGroup)/providers/Microsoft.Network/frontDoors/$(frontDoorName)/backendPools/primary-region-backend"
+      enabledState: "Enabled"
+
+---
+# Traffic Manager Profile for region failover testing
+apiVersion: 2018-08-01
+type: Microsoft.Network/trafficManagerProfiles
+name: region-outage-test-tm
+location: global
+properties:
+  trafficRoutingMethod: "Priority"
+  dnsConfig:
+    relativeName: ""  # Specify unique DNS name
+    ttl: 60
+  monitorConfig:
+    protocol: "HTTPS"
+    port: 443
+    path: "/health"
+  endpoints:
+  - name: primary-region
+    type: "AzureEndpoints"
+    properties:
+      targetResourceId: ""  # Primary region resource ID
+      endpointStatus: "Enabled"
+      priority: 1
+      weight: 1
+  - name: secondary-region
+    type: "AzureEndpoints"
+    properties:
+      targetResourceId: ""  # Secondary region resource ID
+      endpointStatus: "Enabled"
+      priority: 2
+      weight: 1

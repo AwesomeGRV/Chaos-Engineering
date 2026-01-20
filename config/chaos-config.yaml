@@ -1,0 +1,37 @@
+# Chaos Engineering Starter Kit Configuration
+# Azure Chaos Testing Framework
+
+# Global Settings
+global:
+  subscription_id: ""  # Set your Azure Subscription ID
+  resource_group: ""   # Set your Resource Group
+  location: ""         # Set your Azure Region (e.g., eastus, westeurope)
+  
+# Logging Configuration
+logging:
+  level: "info"
+  format: "json"
+  output_file: "logs/chaos-experiments.log"
+
+# Monitoring Integration
+monitoring:
+  azure_monitor:
+    enabled: true
+    workspace_id: ""  # Log Analytics Workspace ID
+  prometheus:
+    enabled: false
+    endpoint: ""
+
+# Safety Settings
+safety:
+  auto_rollback: true
+  rollback_timeout: 300  # seconds
+  blast_radius: "small"  # small, medium, large
+  
+# Experiment Settings
+experiments:
+  default_duration: 300  # seconds
+  default_grace_period: 60  # seconds
+  notification_channels:
+    - email
+    - teams

@@ -1,0 +1,236 @@
+{
+  "sampleExperiments": [
+    {
+      "name": "AKS Pod Resilience Test",
+      "type": "pod-kill",
+      "description": "Tests pod recreation and service recovery in AKS",
+      "parameters": {
+        "ResourceGroup": "my-aks-rg",
+        "ClusterName": "my-aks-cluster",
+        "Namespace": "production",
+        "LabelSelector": "app=webapi",
+        "DurationMinutes": 3
+      },
+      "hypothesis": "When a pod is terminated, the replica set will recreate it within 60 seconds and the service will maintain 99% availability.",
+      "successCriteria": [
+        "Pod recreation time < 60 seconds",
+        "Service availability > 99%",
+        "No data loss during restart",
+        "Automatic recovery without manual intervention"
+      ],
+      "rollbackTriggers": [
+        "Service availability drops below 95%",
+        "Pod recreation fails after 3 attempts",
+        "Error rate exceeds 5%"
+      ]
+    },
+    {
+      "name": "Network Latency Impact Test",
+      "type": "network-latency",
+      "description": "Tests application behavior under network latency conditions",
+      "parameters": {
+        "ResourceGroup": "my-webapp-rg",
+        "TargetVMs": "web-vm-01,web-vm-02,db-vm-01",
+        "LatencyMs": 150,
+        "JitterMs": 20,
+        "CorrelationPercent": 30,
+        "DurationMinutes": 5
+      },
+      "hypothesis": "When network latency of 150ms is introduced, the application will handle timeouts gracefully and maintain functionality with retry mechanisms.",
+      "successCriteria": [
+        "Response time remains under 2 seconds",
+        "Error rate stays below 2%",
+        "Retry mechanisms work correctly",
+        "Circuit breakers activate appropriately"
+      ],
+      "rollbackTriggers": [
+        "Error rate exceeds 10%",
+        "Response time exceeds 5 seconds",
+        "System becomes unresponsive",
+        "Data consistency issues detected"
+      ]
+    },
+    {
+      "name": "Multi-Region Failover Test",
+      "type": "region-outage",
+      "description": "Tests disaster recovery and failover capabilities between regions",
+      "parameters": {
+        "PrimaryResourceGroup": "primary-eastus-rg",
+        "SecondaryResourceGroup": "secondary-westus-rg",
+        "TrafficManagerProfile": "global-app-tm",
+        "PrimaryRegion": "eastus",
+        "SecondaryRegion": "westus",
+        "DurationMinutes": 8
+      },
+      "hypothesis": "When the primary region becomes unavailable, Traffic Manager will automatically failover to the secondary region within 5 minutes with no data loss.",
+      "successCriteria": [
+        "Failover time < 5 minutes",
+        "Service availability > 99.9%",
+        "No data loss during failover",
+        "User sessions preserved where possible",
+        "DNS propagation completes within TTL"
+      ],
+      "rollbackTriggers": [
+        "Failover fails to complete within 10 minutes",
+        "Data corruption or inconsistency detected",
+        "Secondary region cannot handle the load",
+        "Critical services remain unavailable"
+      ]
+    },
+    {
+      "name": "Gradual Load Test with Chaos",
+      "type": "network-latency",
+      "description": "Combines load testing with network latency to test system under stress",
+      "parameters": {
+        "ResourceGroup": "loadtest-rg",
+        "TargetVMs": "app-vm-01,app-vm-02",
+        "LatencyMs": 75,
+        "JitterMs": 15,
+        "CorrelationPercent": 25,
+        "DurationMinutes": 10
+      },
+      "hypothesis": "Under moderate network latency and increased load, the system will maintain acceptable performance levels through proper load balancing and caching.",
+      "successCriteria": [
+        "95th percentile response time < 1.5 seconds",
+        "Error rate < 1%",
+        "Throughput remains > 80% of baseline",
+        "Auto-scaling activates appropriately"
+      ],
+      "rollbackTriggers": [
+        "System becomes unstable",
+        "Auto-scaling fails to activate",
+        "Database connection pool exhaustion",
+        "Memory usage exceeds 90%"
+      ]
+    },
+    {
+      "name": "Database Connection Resilience",
+      "type": "network-latency",
+      "description": "Tests database connection handling under network degradation",
+      "parameters": {
+        "ResourceGroup": "database-rg",
+        "TargetVMs": "db-server-01,db-server-02",
+        "LatencyMs": 200,
+        "JitterMs": 50,
+        "CorrelationPercent": 40,
+        "DurationMinutes": 6
+      },
+      "hypothesis": "When database network latency increases to 200ms, connection pooling and retry logic will maintain application functionality.",
+      "successCriteria": [
+        "Database connection pool remains stable",
+        "Application error rate < 3%",
+        "Connection timeout handling works correctly",
+        "Read replicas handle load appropriately"
+      ],
+      "rollbackTriggers": [
+        "Database connection exhaustion",
+        "Data consistency issues",
+        "Application becomes unresponsive",
+        "Transaction failures exceed 5%"
+      ]
+    }
+  ],
+  "experimentSchedules": [
+    {
+      "name": "Weekly Pod Resilience Check",
+      "experiment": "AKS Pod Resilience Test",
+      "schedule": "0 2 * * 1",
+      "timezone": "UTC",
+      "enabled": true,
+      "notifications": ["email", "teams"]
+    },
+    {
+      "name": "Monthly Network Latency Test",
+      "experiment": "Network Latency Impact Test",
+      "schedule": "0 3 1 * *",
+      "timezone": "UTC",
+      "enabled": true,
+      "notifications": ["email"]
+    },
+    {
+      "name": "Quarterly Disaster Recovery Test",
+      "experiment": "Multi-Region Failover Test",
+      "schedule": "0 4 1 */3 *",
+      "timezone": "UTC",
+      "enabled": true,
+      "notifications": ["email", "teams", "slack"],
+      "approvalRequired": true
+    }
+  ],
+  "experimentTemplates": {
+    "basicPodKill": {
+      "type": "pod-kill",
+      "parameters": {
+        "DurationMinutes": 3,
+        "LabelSelector": "app=${APP_NAME}",
+        "Namespace": "default"
+      },
+      "requiredEnvironmentVariables": ["APP_NAME", "RESOURCE_GROUP", "CLUSTER_NAME"]
+    },
+    "basicNetworkLatency": {
+      "type": "network-latency",
+      "parameters": {
+        "LatencyMs": 100,
+        "JitterMs": 10,
+        "CorrelationPercent": 25,
+        "DurationMinutes": 5
+      },
+      "requiredEnvironmentVariables": ["RESOURCE_GROUP", "TARGET_VMS"]
+    },
+    "basicRegionOutage": {
+      "type": "region-outage",
+      "parameters": {
+        "DurationMinutes": 10
+      },
+      "requiredEnvironmentVariables": [
+        "PRIMARY_RESOURCE_GROUP",
+        "SECONDARY_RESOURCE_GROUP",
+        "TRAFFIC_MANAGER_PROFILE",
+        "PRIMARY_REGION",
+        "SECONDARY_REGION"
+      ]
+    }
+  },
+  "monitoringConfiguration": {
+    "defaultMetrics": [
+      "availabilityResults/availabilityPercentage",
+      "requests/count",
+      "requests/duration",
+      "exceptions/count",
+      "dependencies/count",
+      "dependencies/duration"
+    ],
+    "alertThresholds": {
+      "errorRate": 5,
+      "responseTime": 2000,
+      "availability": 99,
+      "cpuUsage": 80,
+      "memoryUsage": 85
+    },
+    "logQueries": {
+      "highErrorRate": "exceptions | where timestamp > ago(5m) | summarize count() by type | where count_ > 10",
+      "slowRequests": "requests | where timestamp > ago(5m) | where duration > 2000 | summarize count() by name",
+      "availabilityCheck": "availabilityResults | where timestamp > ago(5m) | summarize avg(availabilityPercentage) by name"
+    }
+  },
+  "safetyConfiguration": {
+    "globalRollbackTriggers": [
+      "systemAvailability < 95",
+      "errorRate > 10",
+      "responseTime > 5000",
+      "dataCorruptionDetected = true"
+    ],
+    "blastRadiusLimits": {
+      "maximumPodsPerExperiment": 5,
+      "maximumVMsPerExperiment": 3,
+      "maximumExperimentDuration": 30,
+      "excludedCriticalServices": ["authentication", "payment", "database-primary"]
+    },
+    "approvalRequirements": {
+      "productionExperiments": true,
+      "regionOutageExperiments": true,
+      "businessHoursOnly": false,
+      "requiredApprovers": 2
+    }
+  }
+}

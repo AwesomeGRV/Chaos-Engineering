@@ -1,0 +1,35 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: pod-kill-experiment
+  namespace: chaos-testing
+spec:
+  action: pod-kill
+  mode: one
+  gracePeriod: 0
+  selector:
+    labelSelectors:
+      app: ""  # Specify your application label
+    namespaces:
+      - ""  # Specify your namespace
+  duration: "5m"
+
+---
+# Azure Chaos Studio equivalent configuration
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: azure-pod-kill-experiment
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: pod-kill-step
+      type: KubernetesPodKill
+      duration: "PT5M"
+      parameters:
+        podSelector:
+          labelSelectors:
+            app: ""  # Specify your application label
+          namespace: ""  # Specify your namespace
+        chaosType: "PodKill"
+        gracePeriodSeconds: 0

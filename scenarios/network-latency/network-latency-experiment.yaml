@@ -1,0 +1,59 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: network-latency-experiment
+  namespace: chaos-testing
+spec:
+  action: delay
+  mode: one
+  selector:
+    labelSelectors:
+      app: ""  # Specify your application label
+    namespaces:
+      - ""  # Specify your namespace
+  delay:
+    latency: "100ms"
+    correlation: "25"
+    jitter: "10ms"
+  duration: "5m"
+
+---
+# Azure Chaos Studio equivalent configuration
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: azure-network-latency-experiment
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: network-latency-step
+      type: VirtualMachineNetworkLatency
+      duration: "PT5M"
+      parameters:
+        targetResourceType: "Microsoft.Compute/virtualMachines"
+        targetResources:
+          - ""  # Specify VM resource IDs
+        latencyInMilliseconds: 100
+        jitterInMilliseconds: 10
+        correlationFactor: 25
+
+---
+# Alternative: AKS Network Policy for latency simulation
+apiVersion: v1
+kind: Pod
+metadata:
+  name: network-latency-simulator
+  namespace: chaos-testing
+spec:
+  containers:
+  - name: tc
+    image: alpine:latest
+    command: ["/bin/sh"]
+    args:
+      - -c
+      - |
+        apk add --no-cache iproute2
+        tc qdisc add dev eth0 root netem delay 100ms 10ms 25%
+        sleep 300
+    securityContext:
+      privileged: true
