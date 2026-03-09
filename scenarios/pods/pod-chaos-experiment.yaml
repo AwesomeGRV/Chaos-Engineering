@@ -1,0 +1,336 @@
+# Kubernetes Pod Chaos Experiment Configuration
+# Tests pod resilience, recovery, and cluster behavior
+
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: pod-failure-experiment
+  namespace: chaos-testing
+spec:
+  action: pod-failure
+  mode: one
+  selector:
+    labelSelectors:
+      app: "web-app"
+    namespaces:
+      - "production"
+  duration: "2m"
+  gracePeriod: 0
+
+---
+# Pod Kill Experiment
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: pod-kill-experiment
+  namespace: chaos-testing
+spec:
+  action: pod-kill
+  mode: one
+  selector:
+    labelSelectors:
+      tier: "frontend"
+    namespaces:
+      - "production"
+  gracePeriod: 0
+
+---
+# Container Kill Experiment
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: container-kill-experiment
+  namespace: chaos-testing
+spec:
+  action: container-kill
+  mode: one
+  selector:
+    labelSelectors:
+      app: "api-service"
+    namespaces:
+      - "production"
+  containerName: "main-container"
+  gracePeriod: 0
+
+---
+# Pod Restart Experiment
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: pod-restart-experiment
+  namespace: chaos-testing
+spec:
+  action: container-kill
+  mode: one
+  selector:
+    labelSelectors:
+      app: "background-worker"
+    namespaces:
+      - "production"
+  containerName: "worker"
+  gracePeriod: 30
+
+---
+# Pod Resource Exhaustion
+apiVersion: chaos-mesh.org/v1alpha1
+kind: StressChaos
+metadata:
+  name: pod-cpu-stress
+  namespace: chaos-testing
+spec:
+  mode: one
+  selector:
+    labelSelectors:
+      app: "compute-intensive"
+    namespaces:
+      - "production"
+  stress:
+    cpu:
+      workers: 4
+      load: 90
+    memory:
+      workers: 2
+      size: "512MB"
+  duration: "5m"
+
+---
+# Pod Memory Stress
+apiVersion: chaos-mesh.org/v1alpha1
+kind: StressChaos
+metadata:
+  name: pod-memory-stress
+  namespace: chaos-testing
+spec:
+  mode: one
+  selector:
+    labelSelectors:
+      app: "memory-intensive"
+    namespaces:
+      - "production"
+  stress:
+    memory:
+      workers: 4
+      size: "1GB"
+      oomKill: true
+  duration: "3m"
+
+---
+# Pod Network Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: pod-network-delay
+  namespace: chaos-testing
+spec:
+  action: delay
+  mode: one
+  selector:
+    labelSelectors:
+      app: "network-sensitive"
+    namespaces:
+      - "production"
+  delay:
+    latency: "200ms"
+    correlation: "25"
+    jitter: "50ms"
+  duration: "3m"
+
+---
+# Pod Network Partition
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: pod-network-partition
+  namespace: chaos-testing
+spec:
+  action: partition
+  mode: one
+  selector:
+    labelSelectors:
+      app: "database-client"
+    namespaces:
+      - "production"
+  direction: both
+  target:
+    selector:
+      labelSelectors:
+        tier: "database"
+    namespaces:
+      - "production"
+  duration: "2m"
+
+---
+# Pod DNS Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: DNSChaos
+metadata:
+  name: pod-dns-chaos
+  namespace: chaos-testing
+spec:
+  action: random
+  mode: one
+  selector:
+    labelSelectors:
+      app: "external-api-client"
+    namespaces:
+      - "production"
+  names:
+    - "kubernetes.default.svc.cluster.local"
+    - "external-api.example.com"
+  records:
+    - "10.0.0.1"
+    - "10.0.0.2"
+  duration: "2m"
+
+---
+# Pod Filesystem Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: IOChaos
+metadata:
+  name: pod-filesystem-chaos
+  namespace: chaos-testing
+spec:
+  action: fault
+  mode: one
+  selector:
+    labelSelectors:
+      app: "file-processor"
+    namespaces:
+      - "production"
+  fault:
+    errno: 5
+    percentage: 50
+  path: "/data"
+  delay: "100ms"
+  duration: "2m"
+
+---
+# Pod HTTP Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: HTTPChaos
+metadata:
+  name: pod-http-chaos
+  namespace: chaos-testing
+spec:
+  mode: one
+  selector:
+    labelSelectors:
+      app: "api-gateway"
+    namespaces:
+      - "production"
+  target:
+    selector:
+      labelSelectors:
+        app: "backend-service"
+    namespaces:
+      - "production"
+  port: 8080
+  path: "/api/*"
+  methods:
+    - "GET"
+    - "POST"
+  delay: "200ms"
+  percentage: 30
+  duration: "3m"
+
+---
+# Pod Kernel Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: KernelChaos
+metadata:
+  name: pod-kernel-chaos
+  namespace: chaos-testing
+spec:
+  mode: one
+  selector:
+    labelSelectors:
+      app: "system-service"
+    namespaces:
+      - "production"
+  failKernRequest:
+    callchain:
+      - funcname: "do_sys_open"
+        parameters:
+          type: "string"
+          value: "/etc/passwd"
+    failtype: 1
+    probability: 0.5
+  duration: "1m"
+
+---
+# Pod Physical Machine Chaos (for node-level testing)
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PhysicalMachineChaos
+metadata:
+  name: pod-physical-machine-chaos
+  namespace: chaos-testing
+spec:
+  action: network-corrupt
+  mode: one
+  selector:
+    labelSelectors:
+      node-type: "worker"
+    namespaces:
+      - "production"
+  network-corrupt:
+    correlation: "25"
+    corrupt: "0.01"
+  duration: "2m"
+
+---
+# Pod Time Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: TimeChaos
+metadata:
+  name: pod-time-chaos
+  namespace: chaos-testing
+spec:
+  mode: one
+  selector:
+    labelSelectors:
+      app: "time-sensitive"
+    namespaces:
+      - "production"
+  timeOffset: "-10m"
+  clockIds:
+    - "CLOCK_REALTIME"
+  duration: "2m"
+
+---
+# Pod Group Chaos (multiple pods simultaneously)
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: pod-group-failure
+  namespace: chaos-testing
+spec:
+  action: pod-failure
+  mode: fixed-percent
+  value: "30"
+  selector:
+    labelSelectors:
+      tier: "frontend"
+    namespaces:
+      - "production"
+  duration: "3m"
+  gracePeriod: 0
+
+---
+# Pod Scheduled Chaos (periodic chaos)
+apiVersion: chaos-mesh.org/v1alpha1
+kind: Schedule
+metadata:
+  name: pod-scheduled-chaos
+  namespace: chaos-testing
+spec:
+  schedule: "@every 5m"
+  type: "PodChaos"
+  podChaos:
+    action: pod-kill
+    mode: one
+    selector:
+      labelSelectors:
+        app: "canary-deployment"
+      namespaces:
+        - "production"
+    gracePeriod: 0

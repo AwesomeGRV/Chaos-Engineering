@@ -1,0 +1,136 @@
+# Application-Level Transaction Chaos Experiment
+# Tests transaction integrity, consistency, and recovery mechanisms
+
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: application-transaction-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: database-connection-interruption
+      type: DatabaseConnectionFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Sql/servers"
+        targetResources:
+          - ""  # SQL Server Resource ID
+        failureType: "connection_timeout"
+        failureDuration: "PT2M"
+        
+    - name: transaction-rollback-test
+      type: TransactionInterruption
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Sql/servers"
+        targetResources:
+          - ""  # SQL Server Resource ID
+        interruptionPoint: "commit_phase"
+        rollbackBehavior: "full_rollback"
+        
+    - name: distributed-transaction-failure
+      type: DistributedTransactionFailure
+      duration: "PT3M"
+      parameters:
+        targetResources:
+          - ""  # Primary database Resource ID
+          - ""  # Secondary database Resource ID
+        failureType: "two_phase_commit_timeout"
+        consistencyCheck: true
+        
+    - name: connection-pool-exhaustion
+      type: ConnectionPoolExhaustion
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Sql/servers"
+        targetResources:
+          - ""  # SQL Server Resource ID
+        maxConnections: 1
+        exhaustionDuration: "PT2M"
+
+---
+# Application Service Pod Chaos for transaction testing
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: transaction-pod-chaos
+  namespace: chaos-testing
+spec:
+  action: pod-failure
+  mode: one
+  selector:
+    labelSelectors:
+      app: "transaction-service"
+    namespaces:
+      - "production"
+  duration: "2m"
+  gracePeriod: 0
+
+---
+# Network Partition for distributed transaction testing
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: transaction-network-partition
+  namespace: chaos-testing
+spec:
+  action: partition
+  mode: one
+  selector:
+    labelSelectors:
+      tier: "database"
+    namespaces:
+      - "production"
+  direction: to
+  target:
+    selector:
+      labelSelectors:
+        tier: "application"
+    namespaces:
+      - "production"
+  duration: "1m"
+
+---
+# Stress Test for transaction throughput
+apiVersion: chaos-mesh.org/v1alpha1
+kind: StressChaos
+metadata:
+  name: transaction-stress-test
+  namespace: chaos-testing
+spec:
+  mode: one
+  selector:
+    labelSelectors:
+      app: "transaction-service"
+    namespaces:
+      - "production"
+  stress:
+    cpu:
+      workers: 4
+      load: 80
+    memory:
+      workers: 2
+      size: "256MB"
+  duration: "3m"
+
+---
+# Filesystem corruption test for transaction logs
+apiVersion: chaos-mesh.org/v1alpha1
+kind: IOChaos
+metadata:
+  name: transaction-log-corruption
+  namespace: chaos-testing
+spec:
+  action: fault
+  mode: one
+  selector:
+    labelSelectors:
+      app: "database"
+    namespaces:
+      - "production"
+  fault:
+    errno: 5
+    percentage: 10
+  path: "/var/log/transaction"
+  delay: "100ms"
+  duration: "30s"

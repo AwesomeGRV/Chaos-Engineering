@@ -1,0 +1,188 @@
+# Azure App Service Chaos Experiment Configuration
+# Tests App Service resilience and recovery mechanisms
+
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: app-service-chaos-experiment
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: app-service-restart
+      type: AppServiceRestart
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Web/sites"
+        targetResources:
+          - ""  # App Service Resource ID
+        restartType: "graceful"
+        
+    - name: app-service-stop-start
+      type: AppServiceStopStart
+      duration: "PT5M"
+      parameters:
+        targetResourceType: "Microsoft.Web/sites"
+        targetResources:
+          - ""  # App Service Resource ID
+        stopDuration: "PT2M"
+        
+    - name: app-service-slot-swap-failure
+      type: AppServiceSlotSwapFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Web/sites/slots"
+        targetResources:
+          - ""  # App Service Slot Resource ID
+        failureType: "validation_failure"
+        
+    - name: app-service-config-change
+      type: AppServiceConfigurationChange
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Web/sites/config"
+        targetResources:
+          - ""  # App Service Config Resource ID
+        configType: "app_settings"
+        changeType: "invalid_value"
+        
+    - name: app-service-auto-scale-failure
+      type: AppServiceAutoScaleFailure
+      duration: "PT10M"
+      parameters:
+        targetResourceType: "Microsoft.Insights/autoscalesettings"
+        targetResources:
+          - ""  # Auto Scale Setting Resource ID
+        failureType: "scale_out_failure"
+
+---
+# App Service Platform Level Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: app-service-platform-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: app-service-plan-restart
+      type: AppServicePlanRestart
+      duration: "PT5M"
+      parameters:
+        targetResourceType: "Microsoft.Web/serverFarms"
+        targetResources:
+          - ""  # App Service Plan Resource ID
+        restartType: "force"
+        
+    - name: app-service-worker-process-crash
+      type: AppServiceWorkerProcessCrash
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Web/sites"
+        targetResources:
+          - ""  # App Service Resource ID
+        crashType: "memory_leak"
+        
+    - name: app-service-disk-space-exhaustion
+      type: AppServiceDiskSpaceExhaustion
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Web/sites"
+        targetResources:
+          - ""  # App Service Resource ID
+        exhaustionPercentage: 95
+
+---
+# App Service Network Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: app-service-network-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: app-service-vnet-integration-failure
+      type: AppServiceVnetIntegrationFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Web/sites"
+        targetResources:
+          - ""  # App Service Resource ID
+        failureType: "connection_timeout"
+        
+    - name: app-service-private-endpoint-failure
+      type: AppServicePrivateEndpointFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/privateEndpoints"
+        targetResources:
+          - ""  # Private Endpoint Resource ID
+        failureType: "dns_resolution_failure"
+
+---
+# Kubernetes equivalent for App Service (AKS)
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: app-service-pod-chaos
+  namespace: chaos-testing
+spec:
+  action: pod-failure
+  mode: one
+  selector:
+    labelSelectors:
+      app: "web-app"
+    namespaces:
+      - "production"
+  duration: "2m"
+  gracePeriod: 0
+
+---
+# App Service HTTP Request Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: HTTPChaos
+metadata:
+  name: app-service-http-chaos
+  namespace: chaos-testing
+spec:
+  mode: one
+  selector:
+    labelSelectors:
+      app: "web-app"
+    namespaces:
+      - "production"
+  target:
+    selector:
+      labelSelectors:
+        app: "api-service"
+    namespaces:
+      - "production"
+  port: 80
+  path: "*"
+  methods:
+    - "GET"
+    - "POST"
+  delay: "100ms"
+  percentage: 50
+  duration: "3m"
+
+---
+# App Service Resource Exhaustion
+apiVersion: chaos-mesh.org/v1alpha1
+kind: StressChaos
+metadata:
+  name: app-service-stress-chaos
+  namespace: chaos-testing
+spec:
+  mode: one
+  selector:
+    labelSelectors:
+      app: "web-app"
+    namespaces:
+      - "production"
+  stress:
+    cpu:
+      workers: 4
+      load: 90
+    memory:
+      workers: 2
+      size: "512MB"
+  duration: "5m"

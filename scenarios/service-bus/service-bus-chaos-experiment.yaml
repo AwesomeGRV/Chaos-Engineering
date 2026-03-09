@@ -1,0 +1,212 @@
+# Azure Service Bus Chaos Experiment Configuration
+# Tests Service Bus messaging reliability and recovery mechanisms
+
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: service-bus-chaos-experiment
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: service-bus-namespace-restart
+      type: ServiceBusNamespaceRestart
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.ServiceBus/namespaces"
+        targetResources:
+          - ""  # Service Bus Namespace Resource ID
+        restartType: "graceful"
+        
+    - name: service-bus-queue-disruption
+      type: ServiceBusQueueDisruption
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ServiceBus/namespaces/queues"
+        targetResources:
+          - ""  # Service Bus Queue Resource ID
+        disruptionType: "send_failure"
+        failurePercentage: 50
+        
+    - name: service-bus-topic-disruption
+      type: ServiceBusTopicDisruption
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ServiceBus/namespaces/topics"
+        targetResources:
+          - ""  # Service Bus Topic Resource ID
+        disruptionType: "publish_failure"
+        failurePercentage: 30
+        
+    - name: service-bus-connection-interruption
+      type: ServiceBusConnectionInterruption
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.ServiceBus/namespaces"
+        targetResources:
+          - ""  # Service Bus Namespace Resource ID
+        interruptionType: "connection_timeout"
+        duration: "PT1M"
+
+---
+# Service Bus Advanced Chaos Scenarios
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: service-bus-advanced-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: service-bus-dead-letter-queue-flood
+      type: ServiceBusDeadLetterQueueFlood
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.ServiceBus/namespaces/queues"
+        targetResources:
+          - ""  # Service Bus Queue Resource ID
+        messageCount: 1000
+        poisonMessagePercentage: 20
+        
+    - name: service-bus-session-lock-timeout
+      type: ServiceBusSessionLockTimeout
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ServiceBus/namespaces/queues"
+        targetResources:
+          - ""  # Service Bus Queue Resource ID (session-enabled)
+        lockTimeoutExtension: "false"
+        lockDuration: "PT30S"
+        
+    - name: service-bus-partition-failure
+      type: ServiceBusPartitionFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ServiceBus/namespaces"
+        targetResources:
+          - ""  # Service Bus Namespace Resource ID
+        failureType: "partition_unavailable"
+        affectedPartitions: 1
+
+---
+# Service Bus Network Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: service-bus-network-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: service-bus-network-partition
+      type: ServiceBusNetworkPartition
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ServiceBus/namespaces"
+        targetResources:
+          - ""  # Service Bus Namespace Resource ID
+        partitionType: "egress"
+        affectedEndpoints: ["*.servicebus.windows.net"]
+        
+    - name: service-bus-dns-resolution-failure
+      type: ServiceBusDNSResolutionFailure
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.ServiceBus/namespaces"
+        targetResources:
+          - ""  # Service Bus Namespace Resource ID
+        targetDomain: "*.servicebus.windows.net"
+        failureType: "timeout"
+
+---
+# Service Bus Configuration Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: service-bus-config-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: service-bus-authentication-failure
+      type: ServiceBusAuthenticationFailure
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.ServiceBus/namespaces"
+        targetResources:
+          - ""  # Service Bus Namespace Resource ID
+        failureType: "sas_token_expiry"
+        
+    - name: service-bus-throttling-activation
+      type: ServiceBusThrottlingActivation
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.ServiceBus/namespaces"
+        targetResources:
+          - ""  # Service Bus Namespace Resource ID
+        throttlingType: "send_throttle"
+        throttleLimit: 10
+
+---
+# Kubernetes equivalent for Service Bus consumer/producer pods
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: service-bus-producer-chaos
+  namespace: chaos-testing
+spec:
+  action: pod-failure
+  mode: one
+  selector:
+    labelSelectors:
+      app: "service-bus-producer"
+    namespaces:
+      - "production"
+  duration: "2m"
+  gracePeriod: 0
+
+---
+# Service Bus Network Chaos for Kubernetes
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: service-bus-network-chaos
+  namespace: chaos-testing
+spec:
+  action: delay
+  mode: one
+  selector:
+    labelSelectors:
+      app: "service-bus-consumer"
+    namespaces:
+      - "production"
+  delay:
+    latency: "500ms"
+    correlation: "25"
+    jitter: "100ms"
+  target:
+    selector:
+      namespaces:
+        - "production"
+    mode: one
+  port: 5671
+  duration: "3m"
+
+---
+# Service Bus Stress Test
+apiVersion: chaos-mesh.org/v1alpha1
+kind: StressChaos
+metadata:
+  name: service-bus-stress-chaos
+  namespace: chaos-testing
+spec:
+  mode: one
+  selector:
+    labelSelectors:
+      app: "service-bus-processor"
+    namespaces:
+      - "production"
+  stress:
+    cpu:
+      workers: 4
+      load: 85
+    memory:
+      workers: 2
+      size: "256MB"
+  duration: "4m"

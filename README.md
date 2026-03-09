@@ -12,6 +12,11 @@ Chaos Engineering is the discipline of experimenting on a system to build confid
 - **Pod Kill**: Simulates pod termination failures in Azure Kubernetes Service (AKS)
 - **Network Latency**: Introduces network delays to test timeout and retry mechanisms
 - **Region Outage**: Simulates regional Azure service outages to test failover capabilities
+- **Application Transactions**: Tests database transaction integrity and distributed transaction consistency
+- **App Service**: Tests Azure App Service resilience, restart behavior, and failover capabilities
+- **Service Bus**: Tests messaging reliability, queue behavior, and dead-letter handling
+- **Pods**: Comprehensive Kubernetes pod chaos including failures, stress, and network issues
+- **Redis Cache**: Tests Redis performance, memory pressure, and data consistency
 
 ### Comprehensive Framework
 - **Hypothesis Templates**: Structured templates for defining experiment hypotheses
@@ -67,19 +72,45 @@ Update the configuration with your Azure environment details:
 
 ### 3. Run Your First Experiment
 
-#### Pod Kill Scenario
+#### Using the Orchestration Script (Recommended)
+```powershell
+# Application Transaction Chaos
+.\scripts\run-chaos-experiment.ps1 -ExperimentType "application-transactions" -ResourceGroup "my-rg" -Duration "10m"
+
+# App Service Chaos
+.\scripts\run-chaos-experiment.ps1 -ExperimentType "app-service" -ResourceGroup "my-rg" -Duration "5m"
+
+# Service Bus Chaos
+.\scripts\run-chaos-experiment.ps1 -ExperimentType "service-bus" -ResourceGroup "my-rg" -Duration "8m"
+
+# Pod Chaos
+.\scripts\run-chaos-experiment.ps1 -ExperimentType "pods" -ResourceGroup "my-rg" -Duration "6m"
+
+# Redis Cache Chaos
+.\scripts\run-chaos-experiment.ps1 -ExperimentType "redis" -ResourceGroup "my-rg" -Duration "7m"
+
+# Region Outage Chaos
+.\scripts\run-chaos-experiment.ps1 -ExperimentType "region-outage" -ResourceGroup "my-rg" -Duration "15m"
+
+# Network Latency Chaos
+.\scripts\run-chaos-experiment.ps1 -ExperimentType "network-latency" -ResourceGroup "my-rg" -Duration "5m"
+```
+
+#### Individual Scenario Scripts
+
+##### Pod Kill Scenario
 ```powershell
 cd scenarios/pod-kill
 .\pod-kill-script.ps1 -ResourceGroup "my-rg" -ClusterName "my-aks" -Namespace "default" -LabelSelector "app=myapp"
 ```
 
-#### Network Latency Scenario
+##### Network Latency Scenario
 ```powershell
 cd scenarios/network-latency
 .\network-latency-script.ps1 -ResourceGroup "my-rg" -TargetVMs "vm1,vm2" -LatencyMs 100
 ```
 
-#### Region Outage Scenario
+##### Region Outage Scenario
 ```powershell
 cd scenarios/region-outage
 .\region-outage-script.ps1 -PrimaryResourceGroup "primary-rg" -SecondaryResourceGroup "secondary-rg" -TrafficManagerProfile "my-tm" -PrimaryRegion "eastus" -SecondaryRegion "westus"
@@ -100,9 +131,29 @@ chaos-engineering-starter-kit/
 │   │   ├── network-latency-experiment.yaml
 │   │   ├── network-latency-script.ps1
 │   │   └── hypothesis.md
-│   └── region-outage/
-│       ├── region-outage-experiment.yaml
-│       ├── region-outage-script.ps1
+│   ├── region-outage/
+│   │   ├── region-outage-experiment.yaml
+│   │   ├── region-outage-script.ps1
+│   │   └── hypothesis.md
+│   ├── application-transactions/
+│   │   ├── application-transaction-experiment.yaml
+│   │   ├── transaction-validation-script.ps1
+│   │   └── hypothesis.md
+│   ├── app-service/
+│   │   ├── app-service-chaos-experiment.yaml
+│   │   ├── app-service-validation-script.ps1
+│   │   └── hypothesis.md
+│   ├── service-bus/
+│   │   ├── service-bus-chaos-experiment.yaml
+│   │   ├── service-bus-validation-script.ps1
+│   │   └── hypothesis.md
+│   ├── pods/
+│   │   ├── pod-chaos-experiment.yaml
+│   │   ├── pod-validation-script.ps1
+│   │   └── hypothesis.md
+│   └── redis/
+│       ├── redis-chaos-experiment.yaml
+│       ├── redis-validation-script.ps1
 │       └── hypothesis.md
 ├── templates/
 │   ├── hypothesis/
@@ -110,6 +161,10 @@ chaos-engineering-starter-kit/
 │   └── results/
 │       └── results-template.md
 ├── scripts/
+│   └── run-chaos-experiment.ps1   # Master orchestration script
+├── monitoring/
+│   ├── chaos-monitoring-dashboard.json
+│   └── chaos-alert-rules.yaml
 ├── docs/
 ├── examples/
 ├── logs/                          # Generated during execution
@@ -117,6 +172,126 @@ chaos-engineering-starter-kit/
 ```
 
 ## Chaos Scenarios
+
+### Application Transactions Scenario
+
+**Purpose**: Tests database transaction integrity, distributed transaction consistency, and connection pool behavior under failure conditions.
+
+**What it Tests**:
+- Database connection interruption handling
+- Transaction rollback mechanisms
+- Distributed transaction consistency
+- Connection pool exhaustion recovery
+- Two-phase commit timeout scenarios
+
+**Key Metrics**:
+- Transaction success rate
+- Rollback success rate
+- Connection pool utilization
+- Distributed transaction latency
+- Data consistency validation
+
+**Usage**:
+```powershell
+.\scripts\run-chaos-experiment.ps1 -ExperimentType "application-transactions" -ResourceGroup "rg-name" -Duration "10m"
+```
+
+### App Service Scenario
+
+**Purpose**: Tests Azure App Service resilience, restart behavior, scaling capabilities, and configuration changes.
+
+**What it Tests**:
+- App Service restart and recovery
+- Platform-level failures
+- Configuration change impacts
+- Auto-scaling behavior
+- Slot swap operations
+- Network connectivity issues
+
+**Key Metrics**:
+- Service availability percentage
+- Response time during restart
+- Scaling operation success rate
+- Configuration change impact
+- HTTP error rates
+
+**Usage**:
+```powershell
+.\scripts\run-chaos-experiment.ps1 -ExperimentType "app-service" -ResourceGroup "rg-name" -Duration "5m"
+```
+
+### Service Bus Scenario
+
+**Purpose**: Tests Service Bus messaging reliability, queue behavior, dead-letter handling, and connection resilience.
+
+**What it Tests**:
+- Message queue disruption
+- Topic publishing failures
+- Connection interruption handling
+- Dead-letter queue behavior
+- Session lock timeout scenarios
+- Authentication failures
+
+**Key Metrics**:
+- Message throughput rate
+- Dead-letter rate percentage
+- Connection success rate
+- Queue backlog size
+- Session lock efficiency
+
+**Usage**:
+```powershell
+.\scripts\run-chaos-experiment.ps1 -ExperimentType "service-bus" -ResourceGroup "rg-name" -Duration "8m"
+```
+
+### Pods Scenario
+
+**Purpose**: Comprehensive Kubernetes pod chaos testing including failures, stress, network issues, and resource exhaustion.
+
+**What it Tests**:
+- Pod failure and restart behavior
+- Container kill scenarios
+- CPU and memory stress
+- Network latency and partition
+- DNS resolution failures
+- Filesystem corruption
+- HTTP request failures
+
+**Key Metrics**:
+- Pod recreation time
+- Restart rate percentage
+- Resource utilization levels
+- Network connectivity success
+- Container health status
+
+**Usage**:
+```powershell
+.\scripts\run-chaos-experiment.ps1 -ExperimentType "pods" -ResourceGroup "rg-name" -Duration "6m"
+```
+
+### Redis Cache Scenario
+
+**Purpose**: Tests Redis cache performance, memory pressure, data consistency, and high availability features.
+
+**What it Tests**:
+- Cache restart and failover
+- Memory pressure scenarios
+- Replication lag handling
+- Persistence failures
+- Network connectivity issues
+- Configuration changes
+
+**Key Metrics**:
+- Cache hit rate percentage
+- Memory usage levels
+- Connection count
+- Replication lag time
+- Persistence success rate
+
+**Usage**:
+```powershell
+.\scripts\run-chaos-experiment.ps1 -ExperimentType "redis" -ResourceGroup "rg-name" -Duration "7m"
+```
 
 ### Pod Kill Scenario
 
@@ -204,6 +379,25 @@ Expected Behavior:
 
 ## Monitoring and Observability
 
+### Comprehensive Monitoring Dashboard
+The starter kit includes a pre-configured Grafana dashboard (`monitoring/chaos-monitoring-dashboard.json`) that provides real-time visibility into:
+- Application transaction health and error rates
+- Database connection pool status
+- App Service performance metrics
+- Service Bus message throughput and dead-letter rates
+- Kubernetes pod health and restart counts
+- Redis cache performance and hit rates
+- System resource utilization
+- Chaos experiment status and duration
+
+### Alert Rules
+Pre-configured Prometheus alert rules (`monitoring/chaos-alert-rules.yaml`) for:
+- Critical system degradation during experiments
+- Service availability thresholds
+- Resource exhaustion conditions
+- Chaos experiment duration limits
+- Post-experiment recovery validation
+
 ### Pre-Experiment Monitoring
 1. Establish baseline metrics for all target systems
 2. Verify monitoring endpoints are accessible
@@ -265,21 +459,39 @@ Expected Behavior:
 ## Integration with CI/CD
 
 ### Automated Chaos Testing
-Integrate chaos experiments into your CI/CD pipeline:
+Integrate chaos experiments into your CI/CD pipeline using the orchestration script:
 ```yaml
 # Example Azure DevOps Pipeline
 - stage: Chaos_Testing
   displayName: 'Chaos Engineering Tests'
   jobs:
-  - job: Pod_Kill_Test
-    displayName: 'Pod Kill Resilience Test'
+  - job: Application_Transaction_Test
+    displayName: 'Application Transaction Resilience Test'
     steps:
     - task: AzurePowerShell@5
       inputs:
         azureSubscription: 'ServiceConnection'
         scriptType: 'FilePath'
-        scriptPath: 'scenarios/pod-kill/pod-kill-script.ps1'
-        arguments: '-ResourceGroup "$(ResourceGroup)" -ClusterName "$(AKSCluster)" -Namespace "staging" -LabelSelector "app=$(AppName)"'
+        scriptPath: 'scripts/run-chaos-experiment.ps1'
+        arguments: '-ExperimentType "application-transactions" -ResourceGroup "$(ResourceGroup)" -Duration "5m" -EnableMonitoring'
+  - job: App_Service_Test
+    displayName: 'App Service Resilience Test'
+    steps:
+    - task: AzurePowerShell@5
+      inputs:
+        azureSubscription: 'ServiceConnection'
+        scriptType: 'FilePath'
+        scriptPath: 'scripts/run-chaos-experiment.ps1'
+        arguments: '-ExperimentType "app-service" -ResourceGroup "$(ResourceGroup)" -Duration "3m" -EnableMonitoring'
+  - job: Service_Bus_Test
+    displayName: 'Service Bus Resilience Test'
+    steps:
+    - task: AzurePowerShell@5
+      inputs:
+        azureSubscription: 'ServiceConnection'
+        scriptType: 'FilePath'
+        scriptPath: 'scripts/run-chaos-experiment.ps1'
+        arguments: '-ExperimentType "service-bus" -ResourceGroup "$(ResourceGroup)" -Duration "4m" -EnableMonitoring'
 ```
 
 ### Gatekeeper for Deployments
@@ -360,8 +572,15 @@ This Chaos Engineering Starter Kit is inspired by industry best practices from:
 
 ## Version History
 
+- **v2.0.0**: Major expansion with 5 new chaos scenarios
+  - Application Transactions chaos testing
+  - App Service resilience testing
+  - Service Bus messaging chaos
+  - Comprehensive Pod chaos scenarios
+  - Redis cache chaos testing
+  - Master orchestration script
+  - Enhanced monitoring dashboard and alerting
 - **v1.0.0**: Initial release with three core chaos scenarios
-- Future versions will include additional scenarios and enhanced monitoring
 
 ---
 

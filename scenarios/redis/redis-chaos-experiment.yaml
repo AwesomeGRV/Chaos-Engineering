@@ -1,0 +1,256 @@
+# Azure Redis Cache Chaos Experiment Configuration
+# Tests Redis cache resilience and recovery mechanisms
+
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: redis-chaos-experiment
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: redis-cache-restart
+      type: RedisCacheRestart
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Cache/redis"
+        targetResources:
+          - ""  # Redis Cache Resource ID
+        restartType: "graceful"
+        
+    - name: redis-cache-failover
+      type: RedisCacheFailover
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Cache/redis"
+        targetResources:
+          - ""  # Redis Cache Resource ID
+        failoverType: "planned"
+        
+    - name: redis-connection-interruption
+      type: RedisConnectionInterruption
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Cache/redis"
+        targetResources:
+          - ""  # Redis Cache Resource ID
+        interruptionType: "connection_timeout"
+        duration: "PT1M"
+        
+    - name: redis-memory-pressure
+      type: RedisMemoryPressure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Cache/redis"
+        targetResources:
+          - ""  # Redis Cache Resource ID
+        pressureType: "memory_exhaustion"
+        targetMemoryUsage: 95
+
+---
+# Redis Advanced Chaos Scenarios
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: redis-advanced-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: redis-replication-failure
+      type: RedisReplicationFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Cache/redis"
+        targetResources:
+          - ""  # Redis Cache Resource ID
+        failureType: "replication_lag"
+        lagThreshold: "PT30S"
+        
+    - name: redis-cluster-partition
+      type: RedisClusterPartition
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Cache/redis"
+        targetResources:
+          - ""  # Redis Cache Resource ID
+        partitionType: "network_partition"
+        affectedNodes: 1
+        
+    - name: redis-persistence-failure
+      type: RedisPersistenceFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Cache/redis"
+        targetResources:
+          - ""  # Redis Cache Resource ID
+        failureType: "rdb_save_failure"
+
+---
+# Redis Network Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: redis-network-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: redis-network-latency
+      type: RedisNetworkLatency
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Cache/redis"
+        targetResources:
+          - ""  # Redis Cache Resource ID
+        latencyInMilliseconds: 500
+        jitterInMilliseconds: 100
+        
+    - name: redis-network-packet-loss
+      type: RedisNetworkPacketLoss
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Cache/redis"
+        targetResources:
+          - ""  # Redis Cache Resource ID
+        packetLossPercentage: 10
+
+---
+# Redis Configuration Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: redis-config-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: redis-maxmemory-policy-change
+      type: RedisMaxMemoryPolicyChange
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Cache/redis"
+        targetResources:
+          - ""  # Redis Cache Resource ID
+        newPolicy: "allkeys-random"
+        
+    - name: redis-timeout-configuration
+      type: RedisTimeoutConfiguration
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Cache/redis"
+        targetResources:
+          - ""  # Redis Cache Resource ID
+        timeoutSeconds: 1
+
+---
+# Kubernetes equivalent for Redis pods
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: redis-pod-chaos
+  namespace: chaos-testing
+spec:
+  action: pod-failure
+  mode: one
+  selector:
+    labelSelectors:
+      app: "redis"
+    namespaces:
+      - "production"
+  duration: "2m"
+  gracePeriod: 0
+
+---
+# Redis Network Chaos for Kubernetes
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: redis-network-chaos
+  namespace: chaos-testing
+spec:
+  action: delay
+  mode: one
+  selector:
+    labelSelectors:
+      app: "redis"
+    namespaces:
+      - "production"
+  delay:
+    latency: "200ms"
+    correlation: "25"
+    jitter: "50ms"
+  target:
+    selector:
+      labelSelectors:
+        app: "web-app"
+    namespaces:
+      - "production"
+  port: 6379
+  duration: "3m"
+
+---
+# Redis Stress Test
+apiVersion: chaos-mesh.org/v1alpha1
+kind: StressChaos
+metadata:
+  name: redis-stress-chaos
+  namespace: chaos-testing
+spec:
+  mode: one
+  selector:
+    labelSelectors:
+      app: "redis"
+    namespaces:
+      - "production"
+  stress:
+    cpu:
+      workers: 4
+      load: 85
+    memory:
+      workers: 2
+      size: "512MB"
+  duration: "4m"
+
+---
+# Redis Filesystem Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: IOChaos
+metadata:
+  name: redis-filesystem-chaos
+  namespace: chaos-testing
+spec:
+  action: fault
+  mode: one
+  selector:
+    labelSelectors:
+      app: "redis"
+    namespaces:
+      - "production"
+  fault:
+    errno: 5
+    percentage: 30
+  path: "/data"
+  delay: "50ms"
+  duration: "2m"
+
+---
+# Redis Client Connection Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: HTTPChaos
+metadata:
+  name: redis-client-chaos
+  namespace: chaos-testing
+spec:
+  mode: one
+  selector:
+    labelSelectors:
+      app: "redis-client"
+    namespaces:
+      - "production"
+  target:
+    selector:
+      labelSelectors:
+        app: "redis"
+    namespaces:
+      - "production"
+  port: 6379
+  delay: "100ms"
+  percentage: 40
+  duration: "2m"

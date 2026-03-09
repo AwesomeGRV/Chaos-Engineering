@@ -1,0 +1,244 @@
+# Chaos Engineering Alert Rules
+# Prometheus alert rules for chaos experiment monitoring
+
+groups:
+  - name: chaos-engineering.rules
+    rules:
+      # Application Transaction Alerts
+      - alert: HighTransactionErrorRate
+        expr: sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) > 0.05
+        for: 2m
+        labels:
+          severity: critical
+          component: transactions
+        annotations:
+          summary: "High transaction error rate detected"
+          description: "Transaction error rate is {{ $value | humanizePercentage }} for the last 5 minutes"
+
+      - alert: DatabaseConnectionPoolExhaustion
+        expr: hikaricp_connections_active / hikaricp_connections_max > 0.9
+        for: 1m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "Database connection pool nearly exhausted"
+          description: "Database connection pool usage is {{ $value | humanizePercentage }}"
+
+      - alert: DistributedTransactionFailure
+        expr: increase(distributed_transaction_failures_total[5m]) > 5
+        for: 1m
+        labels:
+          severity: critical
+          component: transactions
+        annotations:
+          summary: "Multiple distributed transaction failures detected"
+          description: "{{ $value }} distributed transaction failures in the last 5 minutes"
+
+      # App Service Alerts
+      - alert: AppServiceHighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 3m
+        labels:
+          severity: warning
+          component: app-service
+        annotations:
+          summary: "App Service response time degraded"
+          description: "95th percentile response time is {{ $value }} seconds"
+
+      - alert: AppServiceHighErrorRate
+        expr: sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) > 0.02
+        for: 2m
+        labels:
+          severity: critical
+          component: app-service
+        annotations:
+          summary: "App Service error rate elevated"
+          description: "App Service error rate is {{ $value | humanizePercentage }}"
+
+      - alert: AppServiceScalingFailure
+        expr: kube_deployment_status_replicas_unavailable > 0
+        for: 5m
+        labels:
+          severity: warning
+          component: app-service
+        annotations:
+          summary: "App Service scaling issues detected"
+          description: "{{ $value }} replicas unavailable for deployment"
+
+      # Service Bus Alerts
+      - alert: ServiceBusMessageQueueBacklog
+        expr: servicebus_queue_size > 1000
+        for: 5m
+        labels:
+          severity: warning
+          component: service-bus
+        annotations:
+          summary: "Service Bus queue backlog detected"
+          description: "Queue size is {{ $value }} messages"
+
+      - alert: ServiceBusHighDeadLetterRate
+        expr: rate(servicebus_deadlettered_messages_total[5m]) / rate(servicebus_messages_sent_total[5m]) > 0.1
+        for: 3m
+        labels:
+          severity: warning
+          component: service-bus
+        annotations:
+          summary: "High Service Bus dead-letter rate"
+          description: "Dead-letter rate is {{ $value | humanizePercentage }}"
+
+      - alert: ServiceBusConnectionFailure
+        expr: increase(servicebus_connection_failures_total[5m]) > 10
+        for: 2m
+        labels:
+          severity: critical
+          component: service-bus
+        annotations:
+          summary: "Service Bus connection failures detected"
+          description: "{{ $value }} connection failures in the last 5 minutes"
+
+      # Kubernetes Pod Alerts
+      - alert: PodHighRestartRate
+        expr: increase(kube_pod_container_status_restarts_total[10m]) > 3
+        for: 5m
+        labels:
+          severity: warning
+          component: pods
+        annotations:
+          summary: "High pod restart rate detected"
+          description: "Pod {{ $labels.pod }} has restarted {{ $value }} times in the last 10 minutes"
+
+      - alert: PodNotReady
+        expr: kube_pod_status_ready{condition="true"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: pods
+        annotations:
+          summary: "Pod not ready"
+          description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} is not ready"
+
+      - alert: PodCrashLooping
+        expr: kube_pod_container_status_waiting_reason{reason="CrashLoopBackOff"} == 1
+        for: 1m
+        labels:
+          severity: critical
+          component: pods
+        annotations:
+          summary: "Pod in crash loop"
+          description: "Pod {{ $labels.pod }} container {{ $labels.container }} is in crash loop backoff"
+
+      - alert: NodeHighResourceUsage
+        expr: (100 - (avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)) > 90
+        for: 5m
+        labels:
+          severity: warning
+          component: nodes
+        annotations:
+          summary: "Node high CPU usage"
+          description: "Node {{ $labels.instance }} CPU usage is {{ $value }}%"
+
+      # Redis Cache Alerts
+      - alert: RedisHighMemoryUsage
+        expr: redis_used_memory_percentage > 90
+        for: 3m
+        labels:
+          severity: critical
+          component: redis
+        annotations:
+          summary: "Redis high memory usage"
+          description: "Redis memory usage is {{ $value }}%"
+
+      - alert: RedisLowCacheHitRate
+        expr: (rate(redis_keyspace_hits_total[5m]) / (rate(redis_keyspace_hits_total[5m]) + rate(redis_keyspace_misses_total[5m]))) * 100 < 80
+        for: 5m
+        labels:
+          severity: warning
+          component: redis
+        annotations:
+          summary: "Redis low cache hit rate"
+          description: "Redis cache hit rate is {{ $value }}%"
+
+      - alert: RedisHighConnectionCount
+        expr: redis_connected_clients > 1000
+        for: 3m
+        labels:
+          severity: warning
+          component: redis
+        annotations:
+          summary: "Redis high connection count"
+          description: "Redis has {{ $value }} connected clients"
+
+      - alert: RedisReplicationLag
+        expr: redis_replication_lag_seconds > 30
+        for: 2m
+        labels:
+          severity: critical
+          component: redis
+        annotations:
+          summary: "Redis replication lag detected"
+          description: "Redis replication lag is {{ $value }} seconds"
+
+      # Chaos Experiment Specific Alerts
+      - alert: ChaosExperimentRunning
+        expr: chaos_experiment_active == 1
+        for: 0m
+        labels:
+          severity: info
+          component: chaos
+        annotations:
+          summary: "Chaos experiment running"
+          description: "Chaos experiment {{ $labels.experiment_name }} is active"
+
+      - alert: ChaosExperimentDurationExceeded
+        expr: time() - chaos_experiment_start_time > 1800
+        for: 0m
+        labels:
+          severity: warning
+          component: chaos
+        annotations:
+          summary: "Chaos experiment running longer than expected"
+          description: "Chaos experiment {{ $labels.experiment_name }} has been running for {{ $value | humanizeDuration }}"
+
+      - alert: SystemDegradationDuringChaos
+        expr: (sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m]))) > 0.1 and chaos_experiment_active == 1
+        for: 1m
+        labels:
+          severity: critical
+          component: chaos
+        annotations:
+          summary: "System degradation during chaos experiment"
+          description: "Error rate is {{ $value | humanizePercentage }} during chaos experiment"
+
+  - name: chaos-recovery.rules
+    rules:
+      # Recovery and Health Alerts
+      - alert: ServiceNotRecoveredAfterChaos
+        expr: time() - chaos_experiment_end_time > 300 and (sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m]))) > 0.02
+        for: 5m
+        labels:
+          severity: critical
+          component: recovery
+        annotations:
+          summary: "Service not recovered after chaos experiment"
+          description: "Service error rate remains elevated 5 minutes after chaos experiment ended"
+
+      - alert: DatabaseConnectionsNotRecovered
+        expr: time() - chaos_experiment_end_time > 180 and hikaricp_connections_active / hikaricp_connections_max > 0.8
+        for: 3m
+        labels:
+          severity: warning
+          component: recovery
+        annotations:
+          summary: "Database connections not recovered"
+          description: "Database connection pool still high 3 minutes after chaos experiment ended"
+
+      - alert: PodNotRecoveredAfterRestart
+        expr: time() - kube_pod_created > 300 and kube_pod_status_ready{condition="true"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: recovery
+        annotations:
+          summary: "Pod not recovered after restart"
+          description: "Pod {{ $labels.pod }} has not become ready 5 minutes after creation"
