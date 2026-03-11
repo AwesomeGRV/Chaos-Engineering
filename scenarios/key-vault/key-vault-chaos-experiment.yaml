@@ -1,0 +1,257 @@
+# Azure Key Vault Chaos Experiment Configuration
+# Tests Key Vault resilience, access patterns, and secret management under failure conditions
+
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: key-vault-chaos-experiment
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: key-vault-access-denied
+      type: KeyVaultAccessDenied
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.KeyVault/vaults"
+        targetResources:
+          - ""  # Key Vault Resource ID
+        accessType: "secrets"
+        failureType: "policy_denied"
+        
+    - name: key-vault-network-isolation
+      type: KeyVaultNetworkIsolation
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.KeyVault/vaults"
+        targetResources:
+          - ""  # Key Vault Resource ID
+        isolationType: "block_all_traffic"
+        
+    - name: key-vault-secret-rotation-failure
+      type: KeyVaultSecretRotationFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.KeyVault/vaults"
+        targetResources:
+          - ""  # Key Vault Resource ID
+        failureType: "rotation_timeout"
+        
+    - name: key-vault-certificate-validation-failure
+      type: KeyVaultCertificateValidationFailure
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.KeyVault/vaults"
+        targetResources:
+          - ""  # Key Vault Resource ID
+        failureType: "chain_validation_error"
+
+---
+# Key Vault Advanced Chaos Scenarios
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: key-vault-advanced-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: key-vault-throttling-activation
+      type: KeyVaultThrottlingActivation
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.KeyVault/vaults"
+        targetResources:
+          - ""  # Key Vault Resource ID
+        throttleType: "read_operations"
+        throttleLimit: 100
+        
+    - name: key-vault-managed-identity-failure
+      type: KeyVaultManagedIdentityFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ManagedIdentity/userAssignedIdentities"
+        targetResources:
+          - ""  # Managed Identity Resource ID
+        failureType: "token_acquisition_failure"
+        
+    - name: key-vault-private-link-failure
+      type: KeyVaultPrivateLinkFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/privateEndpoints"
+        targetResources:
+          - ""  # Private Endpoint Resource ID
+        failureType: "dns_resolution_failure"
+        
+    - name: key-vault-soft-delete-recovery-failure
+      type: KeyVaultSoftDeleteRecoveryFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.KeyVault/vaults"
+        targetResources:
+          - ""  # Key Vault Resource ID
+        failureType: "recovery_timeout"
+
+---
+# Key Vault Configuration Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: key-vault-config-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: key-vault-access-policy-corruption
+      type: KeyVaultAccessPolicyCorruption
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.KeyVault/vaults"
+        targetResources:
+          - ""  # Key Vault Resource ID
+        corruptionType: "invalid_permissions"
+        
+    - name: key-vault-firewall-rule-modification
+      type: KeyVaultFirewallRuleModification
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.KeyVault/vaults"
+        targetResources:
+          - ""  # Key Vault Resource ID
+        modificationType: "block_trusted_services"
+        
+    - name: key-vault-diagnostic-settings-failure
+      type: KeyVaultDiagnosticSettingsFailure
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.KeyVault/vaults"
+        targetResources:
+          - ""  # Key Vault Resource ID
+        failureType: "log_delivery_failure"
+
+---
+# Key Vault DNS and Network Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: key-vault-dns-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: key-vault-dns-resolution-failure
+      type: KeyVaultDNSResolutionFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.KeyVault/vaults"
+        targetResources:
+          - ""  # Key Vault Resource ID
+        targetDomain: "*.vault.azure.net"
+        failureType: "timeout"
+        
+    - name: key-vault-network-latency
+      type: KeyVaultNetworkLatency
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.KeyVault/vaults"
+        targetResources:
+          - ""  # Key Vault Resource ID
+        latencyInMilliseconds: 500
+        jitterInMilliseconds: 100
+
+---
+# Key Vault Application Integration Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: key-vault-app-integration-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: key-vault-app-connection-failure
+      type: KeyVaultAppConnectionFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Web/sites"
+        targetResources:
+          - ""  # App Service Resource ID
+        failureType: "connection_timeout"
+        
+    - name: key-vault-akv2k8s-sync-failure
+      type: KeyVaultAkvsSyncFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerService/managedClusters"
+        targetResources:
+          - ""  # AKS Cluster Resource ID
+        failureType: "sync_timeout"
+        
+    - name: key-vault-terraform-state-lock-failure
+      type: KeyVaultTerraformLockFailure
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.KeyVault/vaults"
+        targetResources:
+          - ""  # Key Vault Resource ID
+        failureType: "lock_acquisition_failure"
+
+---
+# Kubernetes equivalent for Key Vault access
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: key-vault-network-chaos
+  namespace: chaos-testing
+spec:
+  action: delay
+  mode: one
+  selector:
+    labelSelectors:
+      app: "key-vault-client"
+    namespaces:
+      - "production"
+  delay:
+    latency: "300ms"
+    correlation: "25"
+    jitter: "100ms"
+  target:
+    externalTargets:
+      - "*.vault.azure.net"
+    ports: [443]
+  duration: "3m"
+
+---
+# Key Vault Secret Provider Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: key-vault-secret-provider-chaos
+  namespace: chaos-testing
+spec:
+  action: pod-failure
+  mode: one
+  selector:
+    labelSelectors:
+      app: "csi-secrets-store-provider-azure"
+    namespaces:
+      - "kube-system"
+  duration: "2m"
+  gracePeriod: 0
+
+---
+# Key Vault DNS Chaos for Applications
+apiVersion: chaos-mesh.org/v1alpha1
+kind: DNSChaos
+metadata:
+  name: key-vault-dns-chaos
+  namespace: chaos-testing
+spec:
+  action: error
+  mode: one
+  selector:
+    labelSelectors:
+      app: "web-app"
+    namespaces:
+      - "production"
+  names:
+    - "my-keyvault.vault.azure.net"
+  records:
+    - "10.0.0.1"
+  duration: "2m"

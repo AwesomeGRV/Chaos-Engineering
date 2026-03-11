@@ -17,6 +17,14 @@ Chaos Engineering is the discipline of experimenting on a system to build confid
 - **Service Bus**: Tests messaging reliability, queue behavior, and dead-letter handling
 - **Pods**: Comprehensive Kubernetes pod chaos including failures, stress, and network issues
 - **Redis Cache**: Tests Redis performance, memory pressure, and data consistency
+- **Azure Functions**: Tests Functions resilience, scaling, and execution under failure conditions
+- **Key Vault**: Tests secret management resilience, access patterns, and security under failure conditions
+- **Azure Storage**: Tests storage account resilience, data consistency, and access patterns
+- **Azure SQL Database**: Tests SQL Database resilience, connectivity, and data consistency
+- **Virtual Network**: Tests VNet resilience, connectivity, and network security under failure conditions
+- **Container Registry**: Tests ACR resilience, image operations, and registry access
+- **Load Balancer**: Tests Load Balancer resilience, failover, and traffic distribution
+- **Application Gateway**: Tests Application Gateway resilience, routing, and WAF functionality
 
 ### Comprehensive Framework
 - **Hypothesis Templates**: Structured templates for defining experiment hypotheses
@@ -83,18 +91,41 @@ Update the configuration with your Azure environment details:
 # Service Bus Chaos
 .\scripts\run-chaos-experiment.ps1 -ExperimentType "service-bus" -ResourceGroup "my-rg" -Duration "8m"
 
-# Pod Chaos
+# Pods Chaos
 .\scripts\run-chaos-experiment.ps1 -ExperimentType "pods" -ResourceGroup "my-rg" -Duration "6m"
 
 # Redis Cache Chaos
 .\scripts\run-chaos-experiment.ps1 -ExperimentType "redis" -ResourceGroup "my-rg" -Duration "7m"
+
+# Azure Functions Chaos
+.\scripts\run-chaos-experiment.ps1 -ExperimentType "azure-functions" -ResourceGroup "my-rg" -Duration "10m"
+
+# Key Vault Chaos
+.\scripts\run-chaos-experiment.ps1 -ExperimentType "key-vault" -ResourceGroup "my-rg" -Duration "8m"
+
+# Azure Storage Chaos
+.\scripts\run-chaos-experiment.ps1 -ExperimentType "azure-storage" -ResourceGroup "my-rg" -Duration "7m"
+
+# Azure SQL Database Chaos
+.\scripts\run-chaos-experiment.ps1 -ExperimentType "azure-sql" -ResourceGroup "my-rg" -Duration "9m"
+
+# Virtual Network Chaos
+.\scripts\run-chaos-experiment.ps1 -ExperimentType "virtual-network" -ResourceGroup "my-rg" -Duration "6m"
+
+# Container Registry Chaos
+.\scripts\run-chaos-experiment.ps1 -ExperimentType "container-registry" -ResourceGroup "my-rg" -Duration "5m"
+
+# Load Balancer Chaos
+.\scripts\run-chaos-experiment.ps1 -ExperimentType "load-balancer" -ResourceGroup "my-rg" -Duration "6m"
+
+# Application Gateway Chaos
+.\scripts\run-chaos-experiment.ps1 -ExperimentType "application-gateway" -ResourceGroup "my-rg" -Duration "8m"
 
 # Region Outage Chaos
 .\scripts\run-chaos-experiment.ps1 -ExperimentType "region-outage" -ResourceGroup "my-rg" -Duration "15m"
 
 # Network Latency Chaos
 .\scripts\run-chaos-experiment.ps1 -ExperimentType "network-latency" -ResourceGroup "my-rg" -Duration "5m"
-```
 
 #### Individual Scenario Scripts
 

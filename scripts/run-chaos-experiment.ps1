@@ -75,6 +75,54 @@ $experimentConfigs = @{
         RequiredResources = @("Microsoft.Compute/virtualMachines")
         Description = "Tests application behavior under network latency conditions"
     }
+    "azure-functions" = @{
+        Path = "scenarios\azure-functions\azure-functions-chaos-experiment.yaml"
+        ValidationScript = "scenarios\azure-functions\azure-functions-validation-script.ps1"
+        RequiredResources = @("Microsoft.Web/sites", "Microsoft.Storage/storageAccounts", "Microsoft.KeyVault/vaults")
+        Description = "Tests Azure Functions resilience, scaling, and execution under failure conditions"
+    }
+    "key-vault" = @{
+        Path = "scenarios\key-vault\key-vault-chaos-experiment.yaml"
+        ValidationScript = "scenarios\key-vault\key-vault-validation-script.ps1"
+        RequiredResources = @("Microsoft.KeyVault/vaults")
+        Description = "Tests Key Vault resilience, access patterns, and secret management under failure conditions"
+    }
+    "azure-storage" = @{
+        Path = "scenarios\azure-storage\azure-storage-chaos-experiment.yaml"
+        ValidationScript = "scenarios\azure-storage\azure-storage-validation-script.ps1"
+        RequiredResources = @("Microsoft.Storage/storageAccounts")
+        Description = "Tests Storage account resilience, data consistency, and access patterns under failure conditions"
+    }
+    "azure-sql" = @{
+        Path = "scenarios\azure-sql\azure-sql-chaos-experiment.yaml"
+        ValidationScript = "scenarios\azure-sql\azure-sql-validation-script.ps1"
+        RequiredResources = @("Microsoft.Sql/servers/databases")
+        Description = "Tests SQL Database resilience, connectivity, and data consistency under failure conditions"
+    }
+    "virtual-network" = @{
+        Path = "scenarios\virtual-network\virtual-network-chaos-experiment.yaml"
+        ValidationScript = "scenarios\virtual-network\virtual-network-validation-script.ps1"
+        RequiredResources = @("Microsoft.Network/virtualNetworks")
+        Description = "Tests VNet resilience, connectivity, and network security under failure conditions"
+    }
+    "container-registry" = @{
+        Path = "scenarios\container-registry\container-registry-chaos-experiment.yaml"
+        ValidationScript = "scenarios\container-registry\container-registry-validation-script.ps1"
+        RequiredResources = @("Microsoft.ContainerRegistry/registries")
+        Description = "Tests ACR resilience, image operations, and registry access under failure conditions"
+    }
+    "load-balancer" = @{
+        Path = "scenarios\load-balancer\load-balancer-chaos-experiment.yaml"
+        ValidationScript = "scenarios\load-balancer\load-balancer-validation-script.ps1"
+        RequiredResources = @("Microsoft.Network/loadBalancers")
+        Description = "Tests Load Balancer resilience, failover, and traffic distribution under failure conditions"
+    }
+    "application-gateway" = @{
+        Path = "scenarios\application-gateway\application-gateway-chaos-experiment.yaml"
+        ValidationScript = "scenarios\application-gateway\application-gateway-validation-script.ps1"
+        RequiredResources = @("Microsoft.Network/applicationGateways")
+        Description = "Tests Application Gateway resilience, routing, and WAF functionality under failure conditions"
+    }
 }
 
 # Validate experiment type
@@ -187,6 +235,45 @@ function Invoke-PreExperimentValidation {
             }
             "redis" {
                 $validationArgs.RedisName = ""
+            }
+            "azure-functions" {
+                $validationArgs.FunctionAppName = ""
+                $validationArgs.StorageAccountName = ""
+                $validationArgs.KeyVaultName = ""
+            }
+            "key-vault" {
+                $validationArgs.KeyVaultName = ""
+                $validationArgs.TestSecretName = "chaos-test-secret"
+            }
+            "azure-storage" {
+                $validationArgs.StorageAccountName = ""
+                $validationArgs.TestContainerName = "chaos-test-container"
+                $validationArgs.TestQueueName = "chaos-test-queue"
+                $validationArgs.TestTableName = "chaos-test-table"
+                $validationArgs.TestFileShareName = "chaos-test-share"
+            }
+            "azure-sql" {
+                $validationArgs.SqlServerName = ""
+                $validationArgs.DatabaseName = ""
+                $validationArgs.TestTableName = "chaos_test_table"
+            }
+            "virtual-network" {
+                $validationArgs.VirtualNetworkName = ""
+                $validationArgs.TestVMName = ""
+                $validationArgs.TestSubnetName = "chaos-test-subnet"
+            }
+            "container-registry" {
+                $validationArgs.RegistryName = ""
+                $validationArgs.TestRepositoryName = "chaos-test-repo"
+                $validationArgs.TestImageTag = "chaos-test"
+            }
+            "load-balancer" {
+                $validationArgs.LoadBalancerName = ""
+                $validationArgs.TestBackendVMName = ""
+            }
+            "application-gateway" {
+                $validationArgs.ApplicationGatewayName = ""
+                $validationArgs.TestBackendVMName = ""
             }
         }
         
@@ -385,6 +472,45 @@ function Invoke-PostExperimentValidation {
             }
             "redis" {
                 $validationArgs.RedisName = ""
+            }
+            "azure-functions" {
+                $validationArgs.FunctionAppName = ""
+                $validationArgs.StorageAccountName = ""
+                $validationArgs.KeyVaultName = ""
+            }
+            "key-vault" {
+                $validationArgs.KeyVaultName = ""
+                $validationArgs.TestSecretName = "chaos-test-secret"
+            }
+            "azure-storage" {
+                $validationArgs.StorageAccountName = ""
+                $validationArgs.TestContainerName = "chaos-test-container"
+                $validationArgs.TestQueueName = "chaos-test-queue"
+                $validationArgs.TestTableName = "chaos-test-table"
+                $validationArgs.TestFileShareName = "chaos-test-share"
+            }
+            "azure-sql" {
+                $validationArgs.SqlServerName = ""
+                $validationArgs.DatabaseName = ""
+                $validationArgs.TestTableName = "chaos_test_table"
+            }
+            "virtual-network" {
+                $validationArgs.VirtualNetworkName = ""
+                $validationArgs.TestVMName = ""
+                $validationArgs.TestSubnetName = "chaos-test-subnet"
+            }
+            "container-registry" {
+                $validationArgs.RegistryName = ""
+                $validationArgs.TestRepositoryName = "chaos-test-repo"
+                $validationArgs.TestImageTag = "chaos-test"
+            }
+            "load-balancer" {
+                $validationArgs.LoadBalancerName = ""
+                $validationArgs.TestBackendVMName = ""
+            }
+            "application-gateway" {
+                $validationArgs.ApplicationGatewayName = ""
+                $validationArgs.TestBackendVMName = ""
             }
         }
         

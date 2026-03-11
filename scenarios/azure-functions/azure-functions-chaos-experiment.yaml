@@ -1,0 +1,272 @@
+# Azure Functions Chaos Experiment Configuration
+# Tests Azure Functions resilience, scaling, and execution under failure conditions
+
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: azure-functions-chaos-experiment
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: functions-app-restart
+      type: FunctionAppRestart
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Web/sites"
+        targetResources:
+          - ""  # Function App Resource ID
+        restartType: "graceful"
+        
+    - name: functions-scaling-failure
+      type: FunctionAppScalingFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Web/serverFarms"
+        targetResources:
+          - ""  # App Service Plan Resource ID
+        failureType: "scale_out_failure"
+        
+    - name: functions-connection-string-rotation
+      type: FunctionAppConfigurationChange
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Web/sites/config"
+        targetResources:
+          - ""  # Function App Config Resource ID
+        configType: "connection_strings"
+        changeType: "invalid_value"
+        
+    - name: functions-storage-disruption
+      type: FunctionAppStorageDisruption
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Storage/storageAccounts"
+        targetResources:
+          - ""  # Storage Account Resource ID
+        disruptionType: "connection_timeout"
+        
+    - name: functions-key-vault-access-denied
+      type: FunctionAppKeyVaultAccessDenied
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.KeyVault/vaults"
+        targetResources:
+          - ""  # Key Vault Resource ID
+        accessType: "secrets"
+        failureType: "access_denied"
+
+---
+# Azure Functions Advanced Chaos Scenarios
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: azure-functions-advanced-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: functions-cold-start-injection
+      type: FunctionAppColdStartInjection
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Web/sites"
+        targetResources:
+          - ""  # Function App Resource ID
+        coldStartFrequency: "high"
+        
+    - name: functions-memory-pressure
+      type: FunctionAppMemoryPressure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Web/sites"
+        targetResources:
+          - ""  # Function App Resource ID
+        memoryPressureLevel: "high"
+        
+    - name: functions-concurrency-limit-reached
+      type: FunctionAppConcurrencyLimit
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Web/sites"
+        targetResources:
+          - ""  # Function App Resource ID
+        limitType: "hard_limit"
+        
+    - name: functions-timer-trigger-failure
+      type: FunctionAppTimerTriggerFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Web/sites"
+        targetResources:
+          - ""  # Function App Resource ID
+        failureType: "schedule_miss"
+
+---
+# Azure Functions Network Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: azure-functions-network-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: functions-vnet-integration-failure
+      type: FunctionAppVnetIntegrationFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Web/sites"
+        targetResources:
+          - ""  # Function App Resource ID
+        failureType: "connection_timeout"
+        
+    - name: functions-private-endpoint-failure
+      type: FunctionAppPrivateEndpointFailure
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Network/privateEndpoints"
+        targetResources:
+          - ""  # Private Endpoint Resource ID
+        failureType: "dns_resolution_failure"
+        
+    - name: functions-outbound-network-failure
+      type: FunctionAppOutboundNetworkFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Web/sites"
+        targetResources:
+          - ""  # Function App Resource ID
+        failureType: "connection_refused"
+        affectedPorts: [443, 80]
+
+---
+# Azure Functions Deployment Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: azure-functions-deployment-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: functions-deployment-slot-swap-failure
+      type: FunctionAppSlotSwapFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Web/sites/slots"
+        targetResources:
+          - ""  # Function App Slot Resource ID
+        failureType: "validation_failure"
+        
+    - name: functions-app-settings-corruption
+      type: FunctionAppAppSettingsCorruption
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Web/sites/config"
+        targetResources:
+          - ""  # Function App Config Resource ID
+        corruptionType: "invalid_json"
+        
+    - name: functions-extension-package-failure
+      type: FunctionAppExtensionPackageFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Web/sites"
+        targetResources:
+          - ""  # Function App Resource ID
+        packageType: "binding_extension"
+        failureType: "version_conflict"
+
+---
+# Kubernetes equivalent for Functions (if running in AKS)
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: functions-pod-chaos
+  namespace: chaos-testing
+spec:
+  action: pod-failure
+  mode: one
+  selector:
+    labelSelectors:
+      app: "azure-functions"
+    namespaces:
+      - "production"
+  duration: "2m"
+  gracePeriod: 0
+
+---
+# Functions HTTP Request Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: HTTPChaos
+metadata:
+  name: functions-http-chaos
+  namespace: chaos-testing
+spec:
+  mode: one
+  selector:
+    labelSelectors:
+      app: "functions-consumer"
+    namespaces:
+      - "production"
+  target:
+    selector:
+      labelSelectors:
+        app: "azure-functions"
+    namespaces:
+      - "production"
+  port: 80
+  path: "/api/*"
+  methods:
+    - "GET"
+    - "POST"
+  delay: "200ms"
+  percentage: 30
+  duration: "3m"
+
+---
+# Functions Service Bus Trigger Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: functions-servicebus-chaos
+  namespace: chaos-testing
+spec:
+  action: delay
+  mode: one
+  selector:
+    labelSelectors:
+      app: "azure-functions"
+    namespaces:
+      - "production"
+  delay:
+    latency: "300ms"
+    correlation: "25"
+    jitter: "100ms"
+  target:
+    selector:
+      namespaces:
+        - "production"
+    mode: one
+  port: 5671
+  duration: "3m"
+
+---
+# Functions Durable Entities Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: StressChaos
+metadata:
+  name: functions-durable-entities-chaos
+  namespace: chaos-testing
+spec:
+  mode: one
+  selector:
+    labelSelectors:
+      app: "durable-functions"
+    namespaces:
+      - "production"
+  stress:
+    cpu:
+      workers: 4
+      load: 80
+    memory:
+      workers: 2
+      size: "256MB"
+  duration: "4m"

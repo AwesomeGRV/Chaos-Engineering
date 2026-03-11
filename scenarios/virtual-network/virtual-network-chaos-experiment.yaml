@@ -1,0 +1,310 @@
+# Azure Virtual Network Chaos Experiment Configuration
+# Tests VNet resilience, connectivity, and network security under failure conditions
+
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: virtual-network-chaos-experiment
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: vnet-subnet-isolation
+      type: VNetSubnetIsolation
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/virtualNetworks/subnets"
+        targetResources:
+          - ""  # Subnet Resource ID
+        isolationType: "block_all_traffic"
+        
+    - name: vnet-nsg-rule-modification
+      type: VNetNSGRuleModification
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/networkSecurityGroups"
+        targetResources:
+          - ""  # NSG Resource ID
+        modificationType: "block_all_inbound"
+        
+    - name: vnet-route-table-failure
+      type: VNetRouteTableFailure
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Network/routeTables"
+        targetResources:
+          - ""  # Route Table Resource ID
+        failureType: "route_blackhole"
+        
+    - name: vnet-dns-resolution-failure
+      type: VNetDNSResolutionFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/virtualNetworks"
+        targetResources:
+          - ""  # VNet Resource ID
+        failureType: "dns_server_unreachable"
+
+---
+# Azure Virtual Network Advanced Chaos Scenarios
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: virtual-network-advanced-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: vnet-peering-failure
+      type: VNetPeeringFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Network/virtualNetworks/virtualNetworkPeerings"
+        targetResources:
+          - ""  # VNet Peering Resource ID
+        failureType: "peering_disconnected"
+        
+    - name: vnet-vpn-gateway-failure
+      type: VNetVPNGatewayFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/virtualNetworkGateways"
+        targetResources:
+          - ""  # VPN Gateway Resource ID
+        failureType: "tunnel_disconnection"
+        
+    - name: vnet-express-route-failure
+      type: VNetExpressRouteFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/expressRouteCircuits"
+        targetResources:
+          - ""  # ExpressRoute Circuit Resource ID
+        failureType: "circuit_deprovisioned"
+        
+    - name: vnet-nat-gateway-failure
+      type: VNetNatGatewayFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/natGateways"
+        targetResources:
+          - ""  # NAT Gateway Resource ID
+        failureType: "public_ip_exhaustion"
+
+---
+# Azure Virtual Network Service Endpoints Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: virtual-network-service-endpoints-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: vnet-service-endpoint-failure
+      type: VNetServiceEndpointFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/virtualNetworks/subnets"
+        targetResources:
+          - ""  # Subnet Resource ID
+        serviceType: "Microsoft.Storage"
+        failureType: "endpoint_unreachable"
+        
+    - name: vnet-private-link-failure
+      type: VNetPrivateLinkFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/privateEndpoints"
+        targetResources:
+          - ""  # Private Endpoint Resource ID
+        failureType: "dns_resolution_failure"
+        
+    - name: vnet-private-dns-zone-failure
+      type: VNetPrivateDNSZoneFailure
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Network/privateDnsZones"
+        targetResources:
+          - ""  # Private DNS Zone Resource ID
+        failureType: "zone_unavailable"
+
+---
+# Azure Virtual Network Load Balancing Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: virtual-network-load-balancing-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: vnet-load-balancer-probe-failure
+      type: VNetLoadBalancerProbeFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/loadBalancers"
+        targetResources:
+          - ""  # Load Balancer Resource ID
+        failureType: "probe_timeout"
+        
+    - name: vnet-load-balancer-rule-modification
+      type: VNetLoadBalancerRuleModification
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Network/loadBalancers"
+        targetResources:
+          - ""  # Load Balancer Resource ID
+        modificationType: "disable_rule"
+        
+    - name: vnet-application-gateway-failure
+      type: VNetApplicationGatewayFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Network/applicationGateways"
+        targetResources:
+          - ""  # Application Gateway Resource ID
+        failureType: "backend_pool_unhealthy"
+
+---
+# Azure Virtual Network IP Address Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: virtual-network-ip-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: vnet-public-ip-exhaustion
+      type: VNetPublicIPExhaustion
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/publicIPAddresses"
+        targetResources:
+          - ""  # Public IP Resource ID
+        exhaustionType: "allocation_failure"
+        
+    - name: vnet-private-ip-conflict
+      type: VNetPrivateIPConflict
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Network/networkInterfaces"
+        targetResources:
+          - ""  # Network Interface Resource ID
+        conflictType: "ip_address_duplication"
+        
+    - name: vnet-ip-configuration-failure
+      type: VNetIPConfigurationFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/networkInterfaces"
+        targetResources:
+          - ""  # Network Interface Resource ID
+        failureType: "configuration_mismatch"
+
+---
+# Azure Virtual Network Monitoring Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: virtual-network-monitoring-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: vnet-network-watcher-failure
+      type: VNetNetworkWatcherFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/networkWatchers"
+        targetResources:
+          - ""  # Network Watcher Resource ID
+        failureType: "packet_capture_failure"
+        
+    - name: vnet-flow-log-failure
+      type: VNetFlowLogFailure
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Network/networkSecurityGroups"
+        targetResources:
+          - ""  # NSG Resource ID
+        failureType: "log_delivery_failure"
+        
+    - name: vnet-dns-forwarding-failure
+      type: VNetDNSForwardingFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/dnsForwardingRulesets"
+        targetResources:
+          - ""  # DNS Forwarding Ruleset Resource ID
+        failureType: "forwarding_timeout"
+
+---
+# Kubernetes equivalent for VNet connectivity
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: vnet-network-chaos
+  namespace: chaos-testing
+spec:
+  action: partition
+  mode: one
+  selector:
+    labelSelectors:
+      app: "vnet-dependent"
+    namespaces:
+      - "production"
+  direction: both
+  target:
+    selector:
+      labelSelectors:
+        app: "external-service"
+    namespaces:
+      - "production"
+  duration: "2m"
+
+---
+# VNet DNS Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: DNSChaos
+metadata:
+  name: vnet-dns-chaos
+  namespace: chaos-testing
+spec:
+  action: error
+  mode: one
+  selector:
+    labelSelectors:
+      app: "dns-dependent"
+    namespaces:
+      - "production"
+  names:
+    - "internal-service.example.com"
+    - "database.internal"
+  records:
+    - "10.0.0.1"
+    - "10.0.0.2"
+  duration: "2m"
+
+---
+# VNet Route Table Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: vnet-route-chaos
+  namespace: chaos-testing
+spec:
+  action: delay
+  mode: one
+  selector:
+    labelSelectors:
+      app: "route-dependent"
+    namespaces:
+      - "production"
+  delay:
+    latency: "300ms"
+    correlation: "25"
+    jitter: "100ms"
+  target:
+    selector:
+      labelSelectors:
+        app: "gateway"
+    namespaces:
+      - "production"
+  port: 80
+  duration: "3m"

@@ -1,0 +1,312 @@
+# Azure Load Balancer Chaos Experiment Configuration
+# Tests Load Balancer resilience, failover, and traffic distribution under failure conditions
+
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: load-balancer-chaos-experiment
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: load-balancer-probe-failure
+      type: LoadBalancerProbeFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/loadBalancers"
+        targetResources:
+          - ""  # Load Balancer Resource ID
+        failureType: "probe_timeout"
+        
+    - name: load-balancer-rule-modification
+      type: LoadBalancerRuleModification
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/loadBalancers"
+        targetResources:
+          - ""  # Load Balancer Resource ID
+        modificationType: "disable_rule"
+        
+    - name: load-balancer-backend-pool-failure
+      type: LoadBalancerBackendPoolFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Network/loadBalancers/backendAddressPools"
+        targetResources:
+          - ""  # Backend Pool Resource ID
+        failureType: "pool_depletion"
+        
+    - name: load-balancer-frontend-ip-failure
+      type: LoadBalancerFrontendIPFailure
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Network/loadBalancers/frontendIPConfigurations"
+        targetResources:
+          - ""  # Frontend IP Resource ID
+        failureType: "ip_unavailable"
+
+---
+# Azure Load Balancer Advanced Chaos Scenarios
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: load-balancer-advanced-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: load-balancer-nat-rule-failure
+      type: LoadBalancerNATRuleFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/loadBalancers/inboundNatRules"
+        targetResources:
+          - ""  # NAT Rule Resource ID
+        failureType: "port_unreachable"
+        
+    - name: load-balancer-outbound-rule-failure
+      type: LoadBalancerOutboundRuleFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/loadBalancers/outboundRules"
+        targetResources:
+          - ""  # Outbound Rule Resource ID
+        failureType: "connection_refused"
+        
+    - name: load-balancer-health-probe-corruption
+      type: LoadBalancerHealthProbeCorruption
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Network/loadBalancers/probes"
+        targetResources:
+          - ""  # Health Probe Resource ID
+        corruptionType: "invalid_response"
+        
+    - name: load-balancer-floating-ip-failure
+      type: LoadBalancerFloatingIPFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/loadBalancers/frontendIPConfigurations"
+        targetResources:
+          - ""  # Frontend IP Resource ID
+        failureType: "floating_ip_conflict"
+
+---
+# Azure Load Balancer Network Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: load-balancer-network-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: load-balancer-vnet-isolation
+      type: LoadBalancerVnetIsolation
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/loadBalancers"
+        targetResources:
+          - ""  # Load Balancer Resource ID
+        isolationType: "block_backend_traffic"
+        
+    - name: load-balancer-dns-resolution-failure
+      type: LoadBalancerDNSResolutionFailure
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Network/loadBalancers"
+        targetResources:
+          - ""  # Load Balancer Resource ID
+        failureType: "dns_timeout"
+        
+    - name: load-balancer-arp-table-corruption
+      type: LoadBalancerARPTableCorruption
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Network/loadBalancers"
+        targetResources:
+          - ""  # Load Balancer Resource ID
+        corruptionType: "invalid_mac_mapping"
+
+---
+# Azure Load Balancer Configuration Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: load-balancer-config-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: load-balancer-algorithm-change
+      type: LoadBalancerAlgorithmChange
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/loadBalancers"
+        targetResources:
+          - ""  # Load Balancer Resource ID
+        newAlgorithm: "round_robin"
+        
+    - name: load-balancer-session-persistence-failure
+      type: LoadBalancerSessionPersistenceFailure
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Network/loadBalancers"
+        targetResources:
+          - ""  # Load Balancer Resource ID
+        persistenceType: "client_ip"
+        failureType: "affinity_broken"
+        
+    - name: load-balancer-tcp-idle-timeout-modification
+      type: LoadBalancerTCPIPTimeoutModification
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/loadBalancers"
+        targetResources:
+          - ""  # Load Balancer Resource ID
+        newTimeoutMinutes: 1
+
+---
+# Azure Load Balancer SKU Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: load-balancer-sku-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: load-balancer-standard-sku-failure
+      type: LoadBalancerStandardSKUFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Network/loadBalancers"
+        targetResources:
+          - ""  # Load Balancer Resource ID
+        failureType: "availability_zone_outage"
+        
+    - name: load-balancer-basic-sku-limit-reached
+      type: LoadBalancerBasicSKULimitReached
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/loadBalancers"
+        targetResources:
+          - ""  # Load Balancer Resource ID
+        limitType: "backend_pool_exhausted"
+        
+    - name: load-balancer-gateway-load-balancer-failure
+      type: LoadBalancerGatewayLBFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/loadBalancers"
+        targetResources:
+          - ""  # Gateway Load Balancer Resource ID
+        failureType: "tunnel_health_check_failure"
+
+---
+# Azure Load Balancer Monitoring Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: load-balancer-monitoring-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: load-balancer-metrics-collection-failure
+      type: LoadBalancerMetricsCollectionFailure
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Network/loadBalancers"
+        targetResources:
+          - ""  # Load Balancer Resource ID
+        failureType: "metric_pipeline_failure"
+        
+    - name: load-balancer-diagnostic-logs-failure
+      type: LoadBalancerDiagnosticLogsFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/loadBalancers"
+        targetResources:
+          - ""  # Load Balancer Resource ID
+        failureType: "log_delivery_failure"
+        
+    - name: load-balancer-health-probe-logging-failure
+      type: LoadBalancerHealthProbeLoggingFailure
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Network/loadBalancers"
+        targetResources:
+          - ""  # Load Balancer Resource ID
+        failureType: "probe_log_corruption"
+
+---
+# Kubernetes equivalent for Load Balancer access
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: load-balancer-network-chaos
+  namespace: chaos-testing
+spec:
+  action: delay
+  mode: one
+  selector:
+    labelSelectors:
+      app: "load-balancer-client"
+    namespaces:
+      - "production"
+  delay:
+    latency: "300ms"
+    correlation: "25"
+    jitter: "100ms"
+  target:
+    selector:
+      labelSelectors:
+        app: "backend-service"
+    namespaces:
+      - "production"
+  port: 80
+  duration: "3m"
+
+---
+# Load Balancer Health Check Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: HTTPChaos
+metadata:
+  name: load-balancer-health-chaos
+  namespace: chaos-testing
+spec:
+  mode: one
+  selector:
+    labelSelectors:
+      app: "backend-service"
+    namespaces:
+      - "production"
+  target:
+    selector:
+      labelSelectors:
+        app: "load-balancer"
+    namespaces:
+      - "production"
+  port: 80
+  path: "/health"
+  delay: "200ms"
+  percentage: 50
+  duration: "2m"
+
+---
+# Load Balancer Connection Pool Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: StressChaos
+metadata:
+  name: load-balancer-connection-chaos
+  namespace: chaos-testing
+spec:
+  mode: one
+  selector:
+    labelSelectors:
+      app: "load-balancer"
+    namespaces:
+      - "production"
+  stress:
+    cpu:
+      workers: 4
+      load: 85
+    memory:
+      workers: 2
+      size: "256MB"
+  duration: "4m"
