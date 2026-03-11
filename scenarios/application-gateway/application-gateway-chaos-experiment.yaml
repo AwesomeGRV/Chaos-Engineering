@@ -1,0 +1,341 @@
+# Azure Application Gateway Chaos Experiment Configuration
+# Tests Application Gateway resilience, routing, and WAF functionality under failure conditions
+
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: application-gateway-chaos-experiment
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: app-gateway-restart
+      type: ApplicationGatewayRestart
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Network/applicationGateways"
+        targetResources:
+          - ""  # Application Gateway Resource ID
+        restartType: "graceful"
+        
+    - name: app-gateway-backend-pool-failure
+      type: ApplicationGatewayBackendPoolFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/applicationGateways/backendAddressPools"
+        targetResources:
+          - ""  # Backend Pool Resource ID
+        failureType: "pool_depletion"
+        
+    - name: app-gateway-http-settings-failure
+      type: ApplicationGatewayHTTPSettingsFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/applicationGateways/backendHttpSettingsCollection"
+        targetResources:
+          - ""  # HTTP Settings Resource ID
+        failureType: "connection_timeout"
+        
+    - name: app-gateway-listener-failure
+      type: ApplicationGatewayListenerFailure
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Network/applicationGateways/httpListeners"
+        targetResources:
+          - ""  # Listener Resource ID
+        failureType: "port_unavailable"
+
+---
+# Azure Application Gateway Advanced Chaos Scenarios
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: application-gateway-advanced-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: app-gateway-rule-failure
+      type: ApplicationGatewayRuleFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/applicationGateways/requestRoutingRules"
+        targetResources:
+          - ""  # Routing Rule Resource ID
+        failureType: "rule_processing_error"
+        
+    - name: app-gateway-ssl-cert-failure
+      type: ApplicationGatewaySSLCertificateFailure
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Network/applicationGateways/sslCertificates"
+        targetResources:
+          - ""  # SSL Certificate Resource ID
+        failureType: "certificate_expired"
+        
+    - name: app-gateway-path-rule-failure
+      type: ApplicationGatewayPathRuleFailure
+      duration: "PT2M"
+        targetResourceType: "Microsoft.Network/applicationGateways/urlPathMaps"
+        targetResources:
+          - ""  # URL Path Map Resource ID
+        failureType: "path_matching_failure"
+        
+    - name: app-gateway-probe-failure
+      type: ApplicationGatewayProbeFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/applicationGateways/probes"
+        targetResources:
+          - ""  # Health Probe Resource ID
+        failureType: "probe_timeout"
+
+---
+# Azure Application Gateway WAF Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: application-gateway-waf-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: app-gateway-waf-rule-failure
+      type: ApplicationGatewayWAFRuleFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/applicationGateways"
+        targetResources:
+          - ""  # Application Gateway Resource ID
+        failureType: "rule_engine_overload"
+        
+    - name: app-gateway-waf-false-positive-injection
+      type: ApplicationGatewayWAFFalsePositiveInjection
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Network/applicationGateways"
+        targetResources:
+          - ""  # Application Gateway Resource ID
+        injectionType: "sql_injection_detection"
+        
+    - name: app-gateway-waf-exclusion-failure
+      type: ApplicationGatewayWAFExclusionFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/applicationGateways"
+        targetResources:
+          - ""  # Application Gateway Resource ID
+        exclusionType: "parameter_exclusion_mismatch"
+
+---
+# Azure Application Gateway Network Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: application-gateway-network-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: app-gateway-vnet-isolation
+      type: ApplicationGatewayVnetIsolation
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/applicationGateways"
+        targetResources:
+          - ""  # Application Gateway Resource ID
+        isolationType: "block_backend_traffic"
+        
+    - name: app-gateway-subnet-ip-exhaustion
+      type: ApplicationGatewaySubnetIPExhaustion
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/applicationGateways"
+        targetResources:
+          - ""  # Application Gateway Resource ID
+        exhaustionType: "private_ip_unavailable"
+        
+    - name: app-gateway-dns-resolution-failure
+      type: ApplicationGatewayDNSResolutionFailure
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Network/applicationGateways"
+        targetResources:
+          - ""  # Application Gateway Resource ID
+        failureType: "backend_dns_timeout"
+
+---
+# Azure Application Gateway Autoscaling Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: application-gateway-autoscaling-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: app-gateway-autoscaling-failure
+      type: ApplicationGatewayAutoscalingFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Network/applicationGateways"
+        targetResources:
+          - ""  # Application Gateway Resource ID
+        failureType: "scale_out_failure"
+        
+    - name: app-gateway-capacity-limit-reached
+      type: ApplicationGatewayCapacityLimitReached
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/applicationGateways"
+        targetResources:
+          - ""  # Application Gateway Resource ID
+        limitType: "instance_count_maximum"
+        
+    - name: app-gateway-metric-collection-failure
+      type: ApplicationGatewayMetricCollectionFailure
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Network/applicationGateways"
+        targetResources:
+          - ""  # Application Gateway Resource ID
+        failureType: "metric_pipeline_failure"
+
+---
+# Azure Application Gateway Configuration Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: application-gateway-config-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: app-gateway-cookie-affinity-failure
+      type: ApplicationGatewayCookieAffinityFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/applicationGateways/backendHttpSettingsCollection"
+        targetResources:
+          - ""  # HTTP Settings Resource ID
+        failureType: "cookie_corruption"
+        
+    - name: app-gateway-connection-draining-failure
+      type: ApplicationGatewayConnectionDrainingFailure
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Network/applicationGateways/backendHttpSettingsCollection"
+        targetResources:
+          - ""  # HTTP Settings Resource ID
+        failureType: "drain_timeout_exceeded"
+        
+    - name: app-gateway-custom-error-failure
+      type: ApplicationGatewayCustomErrorFailure
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Network/applicationGateways"
+        targetResources:
+          - ""  # Application Gateway Resource ID
+        failureType: "error_page_unavailable"
+
+---
+# Azure Application Gateway Rewrite Rules Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: application-gateway-rewrite-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: app-gateway-rewrite-rule-failure
+      type: ApplicationGatewayRewriteRuleFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/applicationGateways/rewriteRuleSets"
+        targetResources:
+          - ""  # Rewrite Rule Set Resource ID
+        failureType: "rule_processing_error"
+        
+    - name: app-gateway-url-rewrite-corruption
+      type: ApplicationGatewayURLRewriteCorruption
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Network/applicationGateways/rewriteRuleSets"
+        targetResources:
+          - ""  # Rewrite Rule Set Resource ID
+        corruptionType: "invalid_url_pattern"
+        
+    - name: app-gateway-header-rewrite-failure
+      type: ApplicationGatewayHeaderRewriteFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/applicationGateways/rewriteRuleSets"
+        targetResources:
+          - ""  # Rewrite Rule Set Resource ID
+        failureType: "header_manipulation_error"
+
+---
+# Kubernetes equivalent for Application Gateway access
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: app-gateway-network-chaos
+  namespace: chaos-testing
+spec:
+  action: delay
+  mode: one
+  selector:
+    labelSelectors:
+      app: "app-gateway-client"
+    namespaces:
+      - "production"
+  delay:
+    latency: "300ms"
+    correlation: "25"
+    jitter: "100ms"
+  target:
+    selector:
+      labelSelectors:
+        app: "backend-service"
+    namespaces:
+      - "production"
+  port: 80
+  duration: "3m"
+
+---
+# Application Gateway HTTP Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: HTTPChaos
+metadata:
+  name: app-gateway-http-chaos
+  namespace: chaos-testing
+spec:
+  mode: one
+  selector:
+    labelSelectors:
+      app: "app-gateway"
+    namespaces:
+      - "production"
+  target:
+    selector:
+      labelSelectors:
+        app: "backend-service"
+    namespaces:
+      - "production"
+  port: 80
+  path: "/api/*"
+  delay: "200ms"
+  percentage: 30
+  duration: "2m"
+
+---
+# Application Gateway WAF Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: app-gateway-waf-chaos
+  namespace: chaos-testing
+spec:
+  action: pod-failure
+  mode: one
+  selector:
+    labelSelectors:
+      app: "waf-processor"
+    namespaces:
+      - "production"
+  duration: "2m"
+  gracePeriod: 0

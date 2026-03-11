@@ -1,0 +1,310 @@
+# Azure SQL Database Chaos Experiment Configuration
+# Tests SQL Database resilience, connectivity, and data consistency under failure conditions
+
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: azure-sql-chaos-experiment
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: sql-database-restart
+      type: SqlDatabaseRestart
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Sql/servers/databases"
+        targetResources:
+          - ""  # SQL Database Resource ID
+        restartType: "graceful"
+        
+    - name: sql-connection-interruption
+      type: SqlConnectionInterruption
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Sql/servers"
+        targetResources:
+          - ""  # SQL Server Resource ID
+        interruptionType: "connection_timeout"
+        
+    - name: sql-database-failover
+      type: SqlDatabaseFailover
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Sql/servers/databases"
+        targetResources:
+          - ""  # SQL Database Resource ID
+        failoverType: "planned"
+        
+    - name: sql-firewall-rule-modification
+      type: SqlFirewallRuleModification
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Sql/servers/firewallRules"
+        targetResources:
+          - ""  # Firewall Rule Resource ID
+        modificationType: "block_all_access"
+
+---
+# Azure SQL Advanced Chaos Scenarios
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: azure-sql-advanced-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: sql-connection-pool-exhaustion
+      type: SqlConnectionPoolExhaustion
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Sql/servers/databases"
+        targetResources:
+          - ""  # SQL Database Resource ID
+        exhaustionType: "max_connections_reached"
+        
+    - name: sql-transaction-log-full
+      type: SqlTransactionLogFull
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Sql/servers/databases"
+        targetResources:
+          - ""  # SQL Database Resource ID
+        logFullType: "growth_restricted"
+        
+    - name: sql-tempdb-pressure
+      type: SqlTempDbPressure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Sql/servers/databases"
+        targetResources:
+          - ""  # SQL Database Resource ID
+        pressureType: "space_exhaustion"
+        
+    - name: sql-lock-contention-injection
+      type: SqlLockContentionInjection
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Sql/servers/databases"
+        targetResources:
+          - ""  # SQL Database Resource ID
+        lockType: "exclusive_lock"
+        affectedTables: ["chaos_test_table"]
+
+---
+# Azure SQL Performance Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: azure-sql-performance-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: sql-query-timeout-injection
+      type: SqlQueryTimeoutInjection
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Sql/servers/databases"
+        targetResources:
+          - ""  # SQL Database Resource ID
+        timeoutSeconds: 30
+        affectedQueries: ["SELECT *", "INSERT INTO", "UPDATE"]
+        
+    - name: sql-index-fragmentation
+      type: SqlIndexFragmentation
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Sql/servers/databases"
+        targetResources:
+          - ""  # SQL Database Resource ID
+        fragmentationLevel: "high"
+        affectedIndexes: ["PK_chaos_test_table"]
+        
+    - name: sql-parameter-sniffing-disruption
+      type: SqlParameterSniffingDisruption
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Sql/servers/databases"
+        targetResources:
+          - ""  # SQL Database Resource ID
+        disruptionType: "inconsistent_parameters"
+
+---
+# Azure SQL High Availability Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: azure-sql-ha-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: sql-always-on-failover
+      type: SqlAlwaysOnFailover
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Sql/servers/databases"
+        targetResources:
+          - ""  # SQL Database Resource ID
+        failoverType: "automatic"
+        
+    - name: sql-geo-replication-lag
+      type: SqlGeoReplicationLag
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Sql/servers/databases"
+        targetResources:
+          - ""  # SQL Database Resource ID
+        lagThreshold: "PT5M"
+        
+    - name: sql-backup-failure
+      type: SqlBackupFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Sql/servers/databases"
+        targetResources:
+          - ""  # SQL Database Resource ID
+        failureType: "backup_timeout"
+
+---
+# Azure SQL Security Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: azure-sql-security-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: sql-authentication-failure
+      type: SqlAuthenticationFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Sql/servers"
+        targetResources:
+          - ""  # SQL Server Resource ID
+        failureType: "password_expiry"
+        
+    - name: sql-encryption-key-unavailable
+      type: SqlEncryptionKeyUnavailable
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Sql/servers/databases"
+        targetResources:
+          - ""  # SQL Database Resource ID
+        keyType: "column_encryption_key"
+        
+    - name: sql-audit-log-failure
+      type: SqlAuditLogFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Sql/servers/databases"
+        targetResources:
+          - ""  # SQL Database Resource ID
+        failureType: "log_write_failure"
+
+---
+# Azure SQL Elastic Pool Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: azure-sql-elastic-pool-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: sql-elastic-pool-resource-governance
+      type: SqlElasticPoolResourceGovernance
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Sql/servers/elasticPools"
+        targetResources:
+          - ""  # Elastic Pool Resource ID
+        governanceType: "cpu_throttling"
+        
+    - name: sql-elastic-pool-storage-pressure
+      type: SqlElasticPoolStoragePressure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Sql/servers/elasticPools"
+        targetResources:
+          - ""  # Elastic Pool Resource ID
+        pressureLevel: "high"
+        
+    - name: sql-elastic-pool-database-movement
+      type: SqlElasticPoolDatabaseMovement
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Sql/servers/elasticPools"
+        targetResources:
+          - ""  # Elastic Pool Resource ID
+        movementType: "rebalance"
+
+---
+# Kubernetes equivalent for SQL access
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: sql-network-chaos
+  namespace: chaos-testing
+spec:
+  action: delay
+  mode: one
+  selector:
+    labelSelectors:
+      app: "sql-client"
+    namespaces:
+      - "production"
+  delay:
+    latency: "300ms"
+    correlation: "25"
+    jitter: "100ms"
+  target:
+    externalTargets:
+      - "*.database.windows.net"
+    ports: [1433]
+  duration: "3m"
+
+---
+# SQL Connection Pool Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: StressChaos
+metadata:
+  name: sql-connection-pool-chaos
+  namespace: chaos-testing
+spec:
+  mode: one
+  selector:
+    labelSelectors:
+      app: "sql-client"
+    namespaces:
+      - "production"
+  stress:
+    cpu:
+      workers: 4
+      load: 85
+    memory:
+      workers: 2
+      size: "512MB"
+  duration: "4m"
+
+---
+# SQL Transaction Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: HTTPChaos
+metadata:
+  name: sql-transaction-chaos
+  namespace: chaos-testing
+spec:
+  mode: one
+  selector:
+    labelSelectors:
+      app: "sql-client"
+    namespaces:
+      - "production"
+  target:
+    selector:
+      labelSelectors:
+        app: "sql-server"
+    namespaces:
+      - "production"
+  port: 1433
+  delay: "200ms"
+  percentage: 40
+  duration: "2m"

@@ -1,0 +1,308 @@
+# Azure Container Registry Chaos Experiment Configuration
+# Tests ACR resilience, image operations, and registry access under failure conditions
+
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: container-registry-chaos-experiment
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: acr-restart
+      type: ContainerRegistryRestart
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerRegistry/registries"
+        targetResources:
+          - ""  # ACR Resource ID
+        restartType: "graceful"
+        
+    - name: acr-pull-disruption
+      type: ContainerRegistryPullDisruption
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerRegistry/registries"
+        targetResources:
+          - ""  # ACR Resource ID
+        disruptionType: "connection_timeout"
+        
+    - name: acr-push-disruption
+      type: ContainerRegistryPushDisruption
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerRegistry/registries"
+        targetResources:
+          - ""  # ACR Resource ID
+        disruptionType: "authentication_failure"
+        
+    - name: acr-tag-operations-failure
+      type: ContainerRegistryTagOperationsFailure
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerRegistry/registries"
+        targetResources:
+          - ""  # ACR Resource ID
+        failureType: "tag_lock_timeout"
+
+---
+# Azure Container Registry Advanced Chaos Scenarios
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: container-registry-advanced-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: acr-replication-failure
+      type: ContainerRegistryReplicationFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerRegistry/registries/replications"
+        targetResources:
+          - ""  # ACR Replication Resource ID
+        failureType: "geo_replication_lag"
+        
+    - name: acr-webhook-failure
+      type: ContainerRegistryWebhookFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerRegistry/registries/webhooks"
+        targetResources:
+          - ""  # Webhook Resource ID
+        failureType: "notification_delivery_failure"
+        
+    - name: acr-token-generation-failure
+      type: ContainerRegistryTokenGenerationFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerRegistry/registries/tokens"
+        targetResources:
+          - ""  # Token Resource ID
+        failureType: "signing_key_unavailable"
+        
+    - name: acr-scope-map-failure
+      type: ContainerRegistryScopeMapFailure
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerRegistry/registries/scopeMaps"
+        targetResources:
+          - ""  # Scope Map Resource ID
+        failureType: "permission_mismatch"
+
+---
+# Azure Container Registry Network Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: container-registry-network-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: acr-network-latency
+      type: ContainerRegistryNetworkLatency
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerRegistry/registries"
+        targetResources:
+          - ""  # ACR Resource ID
+        latencyInMilliseconds: 500
+        jitterInMilliseconds: 100
+        
+    - name: acr-private-endpoint-failure
+      type: ContainerRegistryPrivateEndpointFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/privateEndpoints"
+        targetResources:
+          - ""  # Private Endpoint Resource ID
+        failureType: "dns_resolution_failure"
+        
+    - name: acr-firewall-rule-modification
+      type: ContainerRegistryFirewallRuleModification
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerRegistry/registries"
+        targetResources:
+          - ""  # ACR Resource ID
+        modificationType: "block_all_access"
+
+---
+# Azure Container Registry Storage Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: container-registry-storage-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: acr-storage-account-disruption
+      type: ContainerRegistryStorageDisruption
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Storage/storageAccounts"
+        targetResources:
+          - ""  # Storage Account Resource ID
+        disruptionType: "connection_timeout"
+        
+    - name: acr-image-layer-corruption
+      type: ContainerRegistryImageLayerCorruption
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerRegistry/registries"
+        targetResources:
+          - ""  # ACR Resource ID
+        corruptionType: "partial_layer_corruption"
+        affectedPercentage: 5
+        
+    - name: acr-manifest-inconsistency
+      type: ContainerRegistryManifestInconsistency
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerRegistry/registries"
+        targetResources:
+          - ""  # ACR Resource ID
+        inconsistencyType: "digest_mismatch"
+
+---
+# Azure Container Registry Security Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: container-registry-security-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: acr-authentication-failure
+      type: ContainerRegistryAuthenticationFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerRegistry/registries"
+        targetResources:
+          - ""  # ACR Resource ID
+        failureType: "aad_token_expiry"
+        
+    - name: acr-certificate-validation-failure
+      type: ContainerRegistryCertificateValidationFailure
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerRegistry/registries"
+        targetResources:
+          - ""  # ACR Resource ID
+        failureType: "chain_validation_error"
+        
+    - name: acr-content-trust-failure
+      type: ContainerRegistryContentTrustFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerRegistry/registries"
+        targetResources:
+          - ""  # ACR Resource ID
+        failureType: "signature_verification_failure"
+
+---
+# Azure Container Registry Performance Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: container-registry-performance-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: acr-throttling-activation
+      type: ContainerRegistryThrottlingActivation
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerRegistry/registries"
+        targetResources:
+          - ""  # ACR Resource ID
+        throttleType: "pull_operations"
+        throttleLimit: 100
+        
+    - name: acr-concurrent-connection-limit
+      type: ContainerRegistryConnectionLimit
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerRegistry/registries"
+        targetResources:
+          - ""  # ACR Resource ID
+        connectionType: "docker_pull"
+        limitThreshold: 10
+        
+    - name: acr-cache-miss-injection
+      type: ContainerRegistryCacheMissInjection
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerRegistry/registries"
+        targetResources:
+          - ""  # ACR Resource ID
+        cacheType: "layer_cache"
+        missPercentage: 80
+
+---
+# Kubernetes equivalent for ACR access
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: acr-network-chaos
+  namespace: chaos-testing
+spec:
+  action: delay
+  mode: one
+  selector:
+    labelSelectors:
+      app: "acr-client"
+    namespaces:
+      - "production"
+  delay:
+    latency: "300ms"
+    correlation: "25"
+    jitter: "100ms"
+  target:
+    externalTargets:
+      - "*.azurecr.io"
+    ports: [443]
+  duration: "3m"
+
+---
+# ACR Image Pull Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: acr-image-pull-chaos
+  namespace: chaos-testing
+spec:
+  action: pod-failure
+  mode: one
+  selector:
+    labelSelectors:
+      app: "image-puller"
+    namespaces:
+      - "production"
+  duration: "2m"
+  gracePeriod: 0
+
+---
+# ACR Container Runtime Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: HTTPChaos
+metadata:
+  name: acr-docker-api-chaos
+  namespace: chaos-testing
+spec:
+  mode: one
+  selector:
+    labelSelectors:
+      app: "docker-daemon"
+    namespaces:
+      - "production"
+  target:
+    selector:
+      labelSelectors:
+        app: "acr-registry"
+    namespaces:
+      - "production"
+  port: 443
+  path: "/v2/*"
+  delay: "200ms"
+  percentage: 30
+  duration: "2m"

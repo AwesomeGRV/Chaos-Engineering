@@ -1,0 +1,316 @@
+# Azure Storage Chaos Experiment Configuration
+# Tests Storage account resilience, data consistency, and access patterns under failure conditions
+
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: azure-storage-chaos-experiment
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: storage-account-restart
+      type: StorageAccountRestart
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Storage/storageAccounts"
+        targetResources:
+          - ""  # Storage Account Resource ID
+        restartType: "graceful"
+        
+    - name: storage-blob-disruption
+      type: StorageBlobDisruption
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Storage/storageAccounts"
+        targetResources:
+          - ""  # Storage Account Resource ID
+        disruptionType: "connection_timeout"
+        
+    - name: storage-queue-disruption
+      type: StorageQueueDisruption
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Storage/storageAccounts"
+        targetResources:
+          - ""  # Storage Account Resource ID
+        disruptionType: "message_processing_delay"
+        
+    - name: storage-table-disruption
+      type: StorageTableDisruption
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Storage/storageAccounts"
+        targetResources:
+          - ""  # Storage Account Resource ID
+        disruptionType: "query_timeout"
+        
+    - name: storage-file-share-disruption
+      type: StorageFileShareDisruption
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Storage/storageAccounts"
+        targetResources:
+          - ""  # Storage Account Resource ID
+        disruptionType: "smb_connection_failure"
+
+---
+# Azure Storage Advanced Chaos Scenarios
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: azure-storage-advanced-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: storage-throttling-activation
+      type: StorageThrottlingActivation
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Storage/storageAccounts"
+        targetResources:
+          - ""  # Storage Account Resource ID
+        throttleType: "read_operations"
+        throttleLimit: 1000
+        
+    - name: storage-replication-failure
+      type: StorageReplicationFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Storage/storageAccounts"
+        targetResources:
+          - ""  # Storage Account Resource ID
+        failureType: "geo_replication_lag"
+        lagThreshold: "PT5M"
+        
+    - name: storage-soft-delete-recovery-failure
+      type: StorageSoftDeleteRecoveryFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Storage/storageAccounts"
+        targetResources:
+          - ""  # Storage Account Resource ID
+        failureType: "recovery_timeout"
+        
+    - name: storage-immutable-policy-enforcement
+      type: StorageImmutablePolicyEnforcement
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Storage/storageAccounts"
+        targetResources:
+          - ""  # Storage Account Resource ID
+        enforcementType: "strict_mode"
+
+---
+# Azure Storage Network Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: azure-storage-network-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: storage-network-latency
+      type: StorageNetworkLatency
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Storage/storageAccounts"
+        targetResources:
+          - ""  # Storage Account Resource ID
+        latencyInMilliseconds: 500
+        jitterInMilliseconds: 100
+        
+    - name: storage-network-packet-loss
+      type: StorageNetworkPacketLoss
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Storage/storageAccounts"
+        targetResources:
+          - ""  # Storage Account Resource ID
+        packetLossPercentage: 10
+        
+    - name: storage-private-endpoint-failure
+      type: StoragePrivateEndpointFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/privateEndpoints"
+        targetResources:
+          - ""  # Private Endpoint Resource ID
+        failureType: "dns_resolution_failure"
+
+---
+# Azure Storage Configuration Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: azure-storage-config-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: storage-access-key-rotation-failure
+      type: StorageAccessKeyRotationFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Storage/storageAccounts"
+        targetResources:
+          - ""  # Storage Account Resource ID
+        failureType: "rotation_timeout"
+        
+    - name: storage-sas-token-generation-failure
+      type: StorageSASTokenGenerationFailure
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Storage/storageAccounts"
+        targetResources:
+          - ""  # Storage Account Resource ID
+        failureType: "signing_key_unavailable"
+        
+    - name: storage-cors-policy-modification
+      type: StorageCORSPolicyModification
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Storage/storageAccounts"
+        targetResources:
+          - ""  # Storage Account Resource ID
+        modificationType: "block_all_origins"
+
+---
+# Azure Storage Data Plane Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: azure-storage-data-plane-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: storage-blob-corruption
+      type: StorageBlobCorruption
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Storage/storageAccounts"
+        targetResources:
+          - ""  # Storage Account Resource ID
+        corruptionType: "partial_data_corruption"
+        affectedPercentage: 5
+        
+    - name: storage-queue-message-poisoning
+      type: StorageQueueMessagePoisoning
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Storage/storageAccounts"
+        targetResources:
+          - ""  # Storage Account Resource ID
+        poisonMessagePercentage: 10
+        
+    - name: storage-table-entity-inconsistency
+      type: StorageTableEntityInconsistency
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Storage/storageAccounts"
+        targetResources:
+          - ""  # Storage Account Resource ID
+        inconsistencyType: "partition_key_mismatch"
+
+---
+# Azure Storage High Availability Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: azure-storage-ha-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: storage-geo-redundancy-failover
+      type: StorageGeoRedundancyFailover
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Storage/storageAccounts"
+        targetResources:
+          - ""  # Storage Account Resource ID
+        failoverType: "planned"
+        
+    - name: storage-zone-redundancy-failure
+      type: StorageZoneRedundancyFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Storage/storageAccounts"
+        targetResources:
+          - ""  # Storage Account Resource ID
+        failureType: "zone_unavailable"
+        affectedZones: 1
+        
+    - name: storage-local-redundancy-failure
+      type: StorageLocalRedundancyFailure
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.Storage/storageAccounts"
+        targetResources:
+          - ""  # Storage Account Resource ID
+        failureType: "node_failure"
+
+---
+# Kubernetes equivalent for Storage access
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: storage-network-chaos
+  namespace: chaos-testing
+spec:
+  action: delay
+  mode: one
+  selector:
+    labelSelectors:
+      app: "storage-client"
+    namespaces:
+      - "production"
+  delay:
+    latency: "300ms"
+    correlation: "25"
+    jitter: "100ms"
+  target:
+    externalTargets:
+      - "*.blob.core.windows.net"
+      - "*.queue.core.windows.net"
+      - "*.table.core.windows.net"
+      - "*.file.core.windows.net"
+    ports: [443, 80]
+  duration: "3m"
+
+---
+# Storage CSI Driver Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: storage-csi-driver-chaos
+  namespace: chaos-testing
+spec:
+  action: pod-failure
+  mode: one
+  selector:
+    labelSelectors:
+      app: "csi-blob-controller"
+    namespaces:
+      - "kube-system"
+  duration: "2m"
+  gracePeriod: 0
+
+---
+# Storage Persistent Volume Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: IOChaos
+metadata:
+  name: storage-pv-chaos
+  namespace: chaos-testing
+spec:
+  action: fault
+  mode: one
+  selector:
+    labelSelectors:
+      app: "storage-intensive"
+    namespaces:
+      - "production"
+  fault:
+    errno: 5
+    percentage: 20
+  path: "/mnt/data"
+  delay: "100ms"
+  duration: "2m"
