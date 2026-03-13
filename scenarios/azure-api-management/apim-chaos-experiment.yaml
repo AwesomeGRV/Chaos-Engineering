@@ -1,0 +1,329 @@
+# Azure API Management Chaos Experiment Configuration
+# Tests APIM resilience, API gateway functionality, and backend connectivity under failure conditions
+
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: apim-chaos-experiment
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: apim-gateway-restart
+      type: APIManagementGatewayRestart
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.ApiManagement/service"
+        targetResources:
+          - ""  # APIM Service Resource ID
+        restartType: "graceful"
+        
+    - name: apim-backend-failure
+      type: APIManagementBackendFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ApiManagement/service/backends"
+        targetResources:
+          - ""  # Backend Resource ID
+        failureType: "connection_timeout"
+        
+    - name: apim-api-policy-failure
+      type: APIManagementAPIPolicyFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ApiManagement/service/apis/policies"
+        targetResources:
+          - ""  # Policy Resource ID
+        failureType: "policy_execution_error"
+        
+    - name: apim-certificate-expiry
+      type: APIManagementCertificateExpiry
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.ApiManagement/service/properties/certificates"
+        targetResources:
+          - ""  # Certificate Resource ID
+        expiryType: "premature_expiry"
+
+---
+# Azure API Management Advanced Chaos Scenarios
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: apim-advanced-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: apim-multi-region-failover
+      type: APIManagementMultiRegionFailover
+      duration: "PT4M"
+      parameters:
+        targetResourceType: "Microsoft.ApiManagement/service"
+        targetResources:
+          - ""  # APIM Service Resource ID
+        failoverType: "region_outage"
+        
+    - name: apim-rate-limit-breach
+      type: APIManagementRateLimitBreach
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ApiManagement/service/policies"
+        targetResources:
+          - ""  # Policy Resource ID
+        breachType: "policy_bypass"
+        
+    - name: apim-cache-invalidation-failure
+      type: APIManagementCacheInvalidationFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ApiManagement/service/cache"
+        targetResources:
+          - ""  # Cache Resource ID
+        failureType: "invalidation_timeout"
+        
+    - name: apim-product-subscription-failure
+      type: APIManagementProductSubscriptionFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ApiManagement/service/products/subscriptions"
+        targetResources:
+          - ""  # Subscription Resource ID
+        failureType: "subscription_validation_error"
+
+---
+# Azure API Management Network Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: apim-network-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: apim-network-partition
+      type: APIManagementNetworkPartition
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.ApiManagement/service"
+        targetResources:
+          - ""  # APIM Service Resource ID
+        partitionType: "region_isolation"
+        
+    - name: apim-dns-resolution-failure
+      type: APIManagementDNSResolutionFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ApiManagement/service"
+        targetResources:
+          - ""  # APIM Service Resource ID
+        failureType: "gateway_endpoint_unreachable"
+        
+    - name: apim-load-balancer-failure
+      type: APIManagementLoadBalancerFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ApiManagement/service"
+        targetResources:
+          - ""  # APIM Service Resource ID
+        failureType: "gateway_unavailable"
+
+---
+# Azure API Management Data Plane Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: apim-data-plane-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: apim-request-corruption
+      type: APIManagementRequestCorruption
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.ApiManagement/service/apis"
+        targetResources:
+          - ""  # API Resource ID
+        corruptionType: "header_manipulation"
+        affectedPercentage: 10
+        
+    - name: apim-response-transformation-failure
+      type: APIManagementResponseTransformationFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ApiManagement/service/policies"
+        targetResources:
+          - ""  # Policy Resource ID
+        failureType: "transformation_error"
+        
+    - name: apim-logging-failure
+      type: APIManagementLoggingFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ApiManagement/service/diagnostics"
+        targetResources:
+          - ""  # Diagnostic Resource ID
+        failureType: "log_delivery_failure"
+        
+    - name: apim-analytics-interruption
+      type: APIManagementAnalyticsInterruption
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ApiManagement/service/loggers"
+        targetResources:
+          - ""  # Logger Resource ID
+        interruptionType: "analytics_pipeline_failure"
+
+---
+# Azure API Management Security Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: apim-security-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: apim-authentication-failure
+      type: APIManagementAuthenticationFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ApiManagement/service/authentications"
+        targetResources:
+          - ""  # Authentication Resource ID
+        failureType: "token_validation_error"
+        
+    - name: apim-authorization-failure
+      type: APIManagementAuthorizationFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ApiManagement/service/policies"
+        targetResources:
+          - ""  # Policy Resource ID
+        failureType: "access_control_bypass"
+        
+    - name: apim-jwt-validation-failure
+      type: APIManagementJWTValidationFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ApiManagement/service/policies"
+        targetResources:
+          - ""  # Policy Resource ID
+        failureType: "signature_validation_error"
+        
+    - name: apim-ip-filter-bypass
+      type: APIManagementIPFilterBypass
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.ApiManagement/service/policies"
+        targetResources:
+          - ""  # Policy Resource ID
+        bypassType: "filter_rule_disabled"
+
+---
+# Azure API Management Developer Portal Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: apim-developer-portal-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: apim-developer-portal-unavailability
+      type: APIManagementDeveloperPortalUnavailability
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ApiManagement/service/portal"
+        targetResources:
+          - ""  # Portal Resource ID
+        unavailabilityType: "portal_service_down"
+        
+    - name: apim-api-documentation-failure
+      type: APIManagementAPIDocumentationFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ApiManagement/service/apis"
+        targetResources:
+          - ""  # API Resource ID
+        failureType: "documentation_generation_error"
+        
+    - name: apim-subscription-management-failure
+      type: APIManagementSubscriptionManagementFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ApiManagement/service/subscriptions"
+        targetResources:
+          - ""  # Subscription Resource ID
+        failureType: "subscription_creation_error"
+        
+    - name: apim-developer-account-issues
+      type: APIManagementDeveloperAccountIssues
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.ApiManagement/service/users"
+        targetResources:
+          - ""  # User Resource ID
+        issueType: "account_access_denied"
+
+---
+# Kubernetes equivalent for APIM access
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: apim-network-chaos
+  namespace: chaos-testing
+spec:
+  action: delay
+  mode: one
+  selector:
+    labelSelectors:
+      app: "apim-client"
+    namespaces:
+      - "production"
+  delay:
+    latency: "300ms"
+    correlation: "25"
+    jitter: "100ms"
+  target:
+    externalTargets:
+      - "*.azure-api.net"
+      - "*.apim.azure-api.net"
+    ports: [80, 443]
+  duration: "3m"
+
+---
+# APIM Backend Service Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: apim-backend-chaos
+  namespace: chaos-testing
+spec:
+  action: pod-failure
+  mode: one
+  selector:
+    labelSelectors:
+      app: "apim-backend"
+    namespaces:
+      - "production"
+  duration: "2m"
+  gracePeriod: 0
+
+---
+# APIM Policy Engine Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: StressChaos
+metadata:
+  name: apim-policy-chaos
+  namespace: chaos-testing
+spec:
+  mode: one
+  selector:
+    labelSelectors:
+      app: "apim-gateway"
+    namespaces:
+      - "production"
+  stress:
+    cpu:
+      workers: 4
+      load: 85
+    memory:
+      workers: 2
+      size: "512MB"
+  duration: "4m"

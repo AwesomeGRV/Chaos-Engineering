@@ -123,6 +123,24 @@ $experimentConfigs = @{
         RequiredResources = @("Microsoft.Network/applicationGateways")
         Description = "Tests Application Gateway resilience, routing, and WAF functionality under failure conditions"
     }
+    "cosmos-db" = @{
+        Path = "scenarios\azure-cosmos-db\cosmos-db-chaos-experiment.yaml"
+        ValidationScript = "scenarios\azure-cosmos-db\cosmos-db-validation-script.ps1"
+        RequiredResources = @("Microsoft.DocumentDB/databaseAccounts")
+        Description = "Tests Cosmos DB resilience, consistency, and data operations under failure conditions"
+    }
+    "event-hub" = @{
+        Path = "scenarios\azure-event-hub\event-hub-chaos-experiment.yaml"
+        ValidationScript = "scenarios\azure-event-hub\event-hub-validation-script.ps1"
+        RequiredResources = @("Microsoft.EventHub/namespaces")
+        Description = "Tests Event Hub resilience, messaging, and event processing under failure conditions"
+    }
+    "api-management" = @{
+        Path = "scenarios\azure-api-management\apim-chaos-experiment.yaml"
+        ValidationScript = "scenarios\azure-api-management\apim-validation-script.ps1"
+        RequiredResources = @("Microsoft.ApiManagement/service")
+        Description = "Tests APIM resilience, API gateway functionality, and backend connectivity under failure conditions"
+    }
 }
 
 # Validate experiment type
@@ -274,6 +292,20 @@ function Invoke-PreExperimentValidation {
             "application-gateway" {
                 $validationArgs.ApplicationGatewayName = ""
                 $validationArgs.TestBackendVMName = ""
+            }
+            "cosmos-db" {
+                $validationArgs.CosmosDBAccountName = ""
+                $validationArgs.DatabaseName = ""
+                $validationArgs.ContainerName = "chaos-test-container"
+            }
+            "event-hub" {
+                $validationArgs.NamespaceName = ""
+                $validationArgs.EventHubName = ""
+                $validationArgs.ConsumerGroupName = "chaos-test-consumer"
+            }
+            "api-management" {
+                $validationArgs.APIMServiceName = ""
+                $validationArgs.TestAPIName = "chaos-test-api"
             }
         }
         
@@ -511,6 +543,20 @@ function Invoke-PostExperimentValidation {
             "application-gateway" {
                 $validationArgs.ApplicationGatewayName = ""
                 $validationArgs.TestBackendVMName = ""
+            }
+            "cosmos-db" {
+                $validationArgs.CosmosDBAccountName = ""
+                $validationArgs.DatabaseName = ""
+                $validationArgs.ContainerName = "chaos-test-container"
+            }
+            "event-hub" {
+                $validationArgs.NamespaceName = ""
+                $validationArgs.EventHubName = ""
+                $validationArgs.ConsumerGroupName = "chaos-test-consumer"
+            }
+            "api-management" {
+                $validationArgs.APIMServiceName = ""
+                $validationArgs.TestAPIName = "chaos-test-api"
             }
         }
         
