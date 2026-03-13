@@ -1,0 +1,312 @@
+# Azure Event Hub Chaos Experiment Configuration
+# Tests Event Hub resilience, messaging, and event processing under failure conditions
+
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: event-hub-chaos-experiment
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: event-hub-namespace-restart
+      type: EventHubNamespaceRestart
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.EventHub/namespaces"
+        targetResources:
+          - ""  # Event Hub Namespace Resource ID
+        restartType: "graceful"
+        
+    - name: event-hub-partition-failure
+      type: EventHubPartitionFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.EventHub/namespaces/eventhubs"
+        targetResources:
+          - ""  # Event Hub Resource ID
+        failureType: "partition_unavailable"
+        
+    - name: event-hub-consumer-group-failure
+      type: EventHubConsumerGroupFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.EventHub/namespaces/eventhubs/consumergroups"
+        targetResources:
+          - ""  # Consumer Group Resource ID
+        failureType: "group_disconnection"
+        
+    - name: event-hub-capture-failure
+      type: EventHubCaptureFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.EventHub/namespaces/eventhubs"
+        targetResources:
+          - ""  # Event Hub Resource ID
+        failureType: "capture_destination_unavailable"
+
+---
+# Azure Event Hub Advanced Chaos Scenarios
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: event-hub-advanced-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: event-hub-geo-disaster-recovery
+      type: EventHubGeoDisasterRecovery
+      duration: "PT5M"
+      parameters:
+        targetResourceType: "Microsoft.EventHub/namespaces"
+        targetResources:
+          - ""  # Event Hub Namespace Resource ID
+        disasterType: "region_outage"
+        
+    - name: event-hub-throughput-throttling
+      type: EventHubThroughputThrottling
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.EventHub/namespaces/eventhubs"
+        targetResources:
+          - ""  # Event Hub Resource ID
+        throttleType: "ingress_limit"
+        throttleLimit: 100
+        
+    - name: event-hub-authorization-failure
+      type: EventHubAuthorizationFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.EventHub/namespaces/authorizationrules"
+        targetResources:
+          - ""  # Authorization Rule Resource ID
+        failureType: "sas_token_expiry"
+        
+    - name: event-hub-schema-registry-failure
+      type: EventHubSchemaRegistryFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.EventHub/namespaces/schemagroups"
+        targetResources:
+          - ""  # Schema Group Resource ID
+        failureType: "schema_validation_error"
+
+---
+# Azure Event Hub Network Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: event-hub-network-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: event-hub-network-partition
+      type: EventHubNetworkPartition
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.EventHub/namespaces"
+        targetResources:
+          - ""  # Event Hub Namespace Resource ID
+        partitionType: "region_isolation"
+        
+    - name: event-hub-dns-resolution-failure
+      type: EventHubDNSResolutionFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.EventHub/namespaces"
+        targetResources:
+          - ""  # Event Hub Namespace Resource ID
+        failureType: "endpoint_unreachable"
+        
+    - name: event-hub-load-balancer-failure
+      type: EventHubLoadBalancerFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.EventHub/namespaces"
+        targetResources:
+          - ""  # Event Hub Namespace Resource ID
+        failureType: "gateway_unavailable"
+
+---
+# Azure Event Hub Data Plane Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: event-hub-data-plane-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: event-hub-message-corruption
+      type: EventHubMessageCorruption
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.EventHub/namespaces/eventhubs"
+        targetResources:
+          - ""  # Event Hub Resource ID
+        corruptionType: "header_manipulation"
+        affectedPercentage: 5
+        
+    - name: event-hub-event-order-disruption
+      type: EventHubEventOrderDisruption
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.EventHub/namespaces/eventhubs"
+        targetResources:
+          - ""  # Event Hub Resource ID
+        disruptionType: "partition_reordering"
+        
+    - name: event-hub-ttl-violation
+      type: EventHubTTLViolation
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.EventHub/namespaces/eventhubs"
+        targetResources:
+          - ""  # Event Hub Resource ID
+        violationType: "retention_bypass"
+        
+    - name: event-hub-duplicate-event-injection
+      type: EventHubDuplicateEventInjection
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.EventHub/namespaces/eventhubs"
+        targetResources:
+          - ""  # Event Hub Resource ID
+        injectionRate: 10
+
+---
+# Azure Event Hub Consumer Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: event-hub-consumer-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: event-hub-consumer-disconnection
+      type: EventHubConsumerDisconnection
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.EventHub/namespaces/eventhubs/consumergroups"
+        targetResources:
+          - ""  # Consumer Group Resource ID
+        disconnectionType: "force_disconnect"
+        
+    - name: event-hub-consumer-offset-corruption
+      type: EventHubConsumerOffsetCorruption
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.EventHub/namespaces/eventhubs/consumergroups"
+        targetResources:
+          - ""  # Consumer Group Resource ID
+        corruptionType: "offset_manipulation"
+        
+    - name: event-hub-consumer-rebalance-failure
+      type: EventHubConsumerRebalanceFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.EventHub/namespaces/eventhubs/consumergroups"
+        targetResources:
+          - ""  # Consumer Group Resource ID
+        failureType: "rebalance_timeout"
+
+---
+# Azure Event Hub Capture Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: event-hub-capture-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: event-hub-capture-destination-failure
+      type: EventHubCaptureDestinationFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.EventHub/namespaces/eventhubs"
+        targetResources:
+          - ""  # Event Hub Resource ID
+        destinationType: "storage_account"
+        failureType: "connection_timeout"
+        
+    - name: event-hub-capture-format-corruption
+      type: EventHubCaptureFormatCorruption
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.EventHub/namespaces/eventhubs"
+        targetResources:
+          - ""  # Event Hub Resource ID
+        corruptionType: "avro_serialization_error"
+        
+    - name: event-hub-capture-schedule-failure
+      type: EventHubCaptureScheduleFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.EventHub/namespaces/eventhubs"
+        targetResources:
+          - ""  # Event Hub Resource ID
+        failureType: "schedule_mismatch"
+
+---
+# Kubernetes equivalent for Event Hub access
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: event-hub-network-chaos
+  namespace: chaos-testing
+spec:
+  action: delay
+  mode: one
+  selector:
+    labelSelectors:
+      app: "event-hub-client"
+    namespaces:
+      - "production"
+  delay:
+    latency: "300ms"
+    correlation: "25"
+    jitter: "100ms"
+  target:
+    externalTargets:
+      - "*.servicebus.windows.net"
+    ports: [5671, 9093, 9354]
+  duration: "3m"
+
+---
+# Event Hub Producer Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: event-hub-producer-chaos
+  namespace: chaos-testing
+spec:
+  action: pod-failure
+  mode: one
+  selector:
+    labelSelectors:
+      app: "event-producer"
+    namespaces:
+      - "production"
+  duration: "2m"
+  gracePeriod: 0
+
+---
+# Event Hub Consumer Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: StressChaos
+metadata:
+  name: event-hub-consumer-chaos
+  namespace: chaos-testing
+spec:
+  mode: one
+  selector:
+    labelSelectors:
+      app: "event-consumer"
+    namespaces:
+      - "production"
+  stress:
+    cpu:
+      workers: 4
+      load: 85
+    memory:
+      workers: 2
+      size: "512MB"
+  duration: "4m"

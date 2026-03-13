@@ -1,0 +1,310 @@
+# Azure Cosmos DB Chaos Experiment Configuration
+# Tests Cosmos DB resilience, consistency, and data operations under failure conditions
+
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: cosmos-db-chaos-experiment
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: cosmos-db-region-failover
+      type: CosmosDBRegionFailover
+      duration: "PT5M"
+      parameters:
+        targetResourceType: "Microsoft.DocumentDB/databaseAccounts"
+        targetResources:
+          - ""  # Cosmos DB Account Resource ID
+        failoverType: "automatic"
+        
+    - name: cosmos-db-throughput-throttling
+      type: CosmosDBThroughputThrottling
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers"
+        targetResources:
+          - ""  # Container Resource ID
+        throttleType: "request_unit_limit"
+        
+    - name: cosmos-db-consistency-level-change
+      type: CosmosDBConsistencyLevelChange
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.DocumentDB/databaseAccounts"
+        targetResources:
+          - ""  # Cosmos DB Account Resource ID
+        newConsistencyLevel: "eventual"
+        
+    - name: cosmos-db-index-rebuild-failure
+      type: CosmosDBIndexRebuildFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers"
+        targetResources:
+          - ""  # Container Resource ID
+        failureType: "rebuild_timeout"
+
+---
+# Azure Cosmos DB Advanced Chaos Scenarios
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: cosmos-db-advanced-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: cosmos-db-multi-region-sync-failure
+      type: CosmosDBMultiRegionSyncFailure
+      duration: "PT4M"
+      parameters:
+        targetResourceType: "Microsoft.DocumentDB/databaseAccounts"
+        targetResources:
+          - ""  # Cosmos DB Account Resource ID
+        syncFailureType: "conflict_resolution_timeout"
+        
+    - name: cosmos-db-change-feed-interruption
+      type: CosmosDBChangeFeedInterruption
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers"
+        targetResources:
+          - ""  # Container Resource ID
+        interruptionType: "feed_disconnection"
+        
+    - name: cosmos-db-stored-procedure-failure
+      type: CosmosDBStoredProcedureFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers"
+        targetResources:
+          - ""  # Container Resource ID
+        failureType: "execution_timeout"
+        
+    - name: cosmos-db-trigger-failure
+      type: CosmosDBTriggerFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers"
+        targetResources:
+          - ""  # Container Resource ID
+        failureType: "trigger_execution_error"
+
+---
+# Azure Cosmos DB Network Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: cosmos-db-network-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: cosmos-db-network-partition
+      type: CosmosDBNetworkPartition
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.DocumentDB/databaseAccounts"
+        targetResources:
+          - ""  # Cosmos DB Account Resource ID
+        partitionType: "region_isolation"
+        
+    - name: cosmos-db-dns-resolution-failure
+      type: CosmosDBDNSResolutionFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.DocumentDB/databaseAccounts"
+        targetResources:
+          - ""  # Cosmos DB Account Resource ID
+        failureType: "endpoint_unreachable"
+        
+    - name: cosmos-db-connection-pool-exhaustion
+      type: CosmosDBConnectionPoolExhaustion
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.DocumentDB/databaseAccounts"
+        targetResources:
+          - ""  # Cosmos DB Account Resource ID
+        exhaustionType: "max_connections_reached"
+
+---
+# Azure Cosmos DB Data Plane Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: cosmos-db-data-plane-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: cosmos-db-partial-data-corruption
+      type: CosmosDBPartialDataCorruption
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers"
+        targetResources:
+          - ""  # Container Resource ID
+        corruptionType: "property_level_corruption"
+        affectedPercentage: 5
+        
+    - name: cosmos-db-ttl-violation
+      type: CosmosDBTTLViolation
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers"
+        targetResources:
+          - ""  # Container Resource ID
+        violationType: "expiration_bypass"
+        
+    - name: cosmos-db-unique-key-constraint-failure
+      type: CosmosDBUniqueKeyConstraintFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers"
+        targetResources:
+          - ""  # Container Resource ID
+        failureType: "constraint_enforcement_bypass"
+
+---
+# Azure Cosmos DB Security Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: cosmos-db-security-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: cosmos-db-authentication-failure
+      type: CosmosDBAuthenticationFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.DocumentDB/databaseAccounts"
+        targetResources:
+          - ""  # Cosmos DB Account Resource ID
+        failureType: "token_expiry"
+        
+    - name: cosmos-db-authorization-failure
+      type: CosmosDBAuthorizationFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers"
+        targetResources:
+          - ""  # Container Resource ID
+        failureType: "permission_denied"
+        
+    - name: cosmos-db-encryption-key-unavailable
+      type: CosmosDBEncryptionKeyUnavailable
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.DocumentDB/databaseAccounts"
+        targetResources:
+          - ""  # Cosmos DB Account Resource ID
+        keyType: "customer_managed_key"
+
+---
+# Azure Cosmos DB Performance Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: cosmos-db-performance-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: cosmos-db-query-performance-degradation
+      type: CosmosDBQueryPerformanceDegradation
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers"
+        targetResources:
+          - ""  # Container Resource ID
+        degradationType: "index_not_used"
+        
+    - name: cosmos-db-batch-request-failure
+      type: CosmosDBBatchRequestFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers"
+        targetResources:
+          - ""  # Container Resource ID
+        failureType: "partial_batch_failure"
+        
+    - name: cosmos-db-cache-eviction-pressure
+      type: CosmosDBCacheEvictionPressure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.DocumentDB/databaseAccounts"
+        targetResources:
+          - ""  # Cosmos DB Account Resource ID
+        pressureType: "memory_pressure"
+
+---
+# Kubernetes equivalent for Cosmos DB access
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: cosmos-db-network-chaos
+  namespace: chaos-testing
+spec:
+  action: delay
+  mode: one
+  selector:
+    labelSelectors:
+      app: "cosmos-db-client"
+    namespaces:
+      - "production"
+  delay:
+    latency: "300ms"
+    correlation: "25"
+    jitter: "100ms"
+  target:
+    externalTargets:
+      - "*.documents.azure.com"
+      - "*.cosmos.azure.com"
+    ports: [443, 80]
+  duration: "3m"
+
+---
+# Cosmos DB Connection Pool Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: StressChaos
+metadata:
+  name: cosmos-db-connection-chaos
+  namespace: chaos-testing
+spec:
+  mode: one
+  selector:
+    labelSelectors:
+      app: "cosmos-db-client"
+    namespaces:
+      - "production"
+  stress:
+    cpu:
+      workers: 4
+      load: 85
+    memory:
+      workers: 2
+      size: "512MB"
+  duration: "4m"
+
+---
+# Cosmos DB Request Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: HTTPChaos
+metadata:
+  name: cosmos-db-request-chaos
+  namespace: chaos-testing
+spec:
+  mode: one
+  selector:
+    labelSelectors:
+      app: "cosmos-db-client"
+    namespaces:
+      - "production"
+  target:
+    selector:
+      labelSelectors:
+        app: "cosmos-db-api"
+    namespaces:
+      - "production"
+  port: 443
+  path: "/docs/*"
+  delay: "200ms"
+  percentage: 30
+  duration: "2m"

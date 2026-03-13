@@ -25,6 +25,9 @@ Chaos Engineering is the discipline of experimenting on a system to build confid
 - **Container Registry**: Tests ACR resilience, image operations, and registry access
 - **Load Balancer**: Tests Load Balancer resilience, failover, and traffic distribution
 - **Application Gateway**: Tests Application Gateway resilience, routing, and WAF functionality
+- **Cosmos DB**: Tests Cosmos DB resilience, consistency, and data operations under failure conditions
+- **Event Hub**: Tests Event Hub resilience, messaging, and event processing under failure conditions
+- **API Management**: Tests APIM resilience, API gateway functionality, and backend connectivity under failure conditions
 
 ### Comprehensive Framework
 - **Hypothesis Templates**: Structured templates for defining experiment hypotheses
@@ -119,13 +122,34 @@ Update the configuration with your Azure environment details:
 .\scripts\run-chaos-experiment.ps1 -ExperimentType "load-balancer" -ResourceGroup "my-rg" -Duration "6m"
 
 # Application Gateway Chaos
+```powershell
 .\scripts\run-chaos-experiment.ps1 -ExperimentType "application-gateway" -ResourceGroup "my-rg" -Duration "8m"
+```
+
+# Cosmos DB Chaos
+```powershell
+.\scripts\run-chaos-experiment.ps1 -ExperimentType "cosmos-db" -ResourceGroup "my-rg" -Duration "10m"
+```
+
+# Event Hub Chaos
+```powershell
+.\scripts\run-chaos-experiment.ps1 -ExperimentType "event-hub" -ResourceGroup "my-rg" -Duration "7m"
+```
+
+# API Management Chaos
+```powershell
+.\scripts\run-chaos-experiment.ps1 -ExperimentType "api-management" -ResourceGroup "my-rg" -Duration "9m"
+```
 
 # Region Outage Chaos
+```powershell
 .\scripts\run-chaos-experiment.ps1 -ExperimentType "region-outage" -ResourceGroup "my-rg" -Duration "15m"
+```
 
 # Network Latency Chaos
+```powershell
 .\scripts\run-chaos-experiment.ps1 -ExperimentType "network-latency" -ResourceGroup "my-rg" -Duration "5m"
+```
 
 #### Individual Scenario Scripts
 
