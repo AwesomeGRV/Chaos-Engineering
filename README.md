@@ -28,6 +28,9 @@ Chaos Engineering is the discipline of experimenting on a system to build confid
 - **Cosmos DB**: Tests Cosmos DB resilience, consistency, and data operations under failure conditions
 - **Event Hub**: Tests Event Hub resilience, messaging, and event processing under failure conditions
 - **API Management**: Tests APIM resilience, API gateway functionality, and backend connectivity under failure conditions
+- **Azure Kubernetes Service**: Tests AKS cluster resilience, node failures, and control plane issues
+- **Azure Front Door**: Tests Front Door resilience, routing, and WAF capabilities under failure conditions
+- **Azure AI Services**: Tests AI services resilience, API availability, and model performance under failure conditions
 
 ### Comprehensive Framework
 - **Hypothesis Templates**: Structured templates for defining experiment hypotheses
@@ -139,6 +142,21 @@ Update the configuration with your Azure environment details:
 # API Management Chaos
 ```powershell
 .\scripts\run-chaos-experiment.ps1 -ExperimentType "api-management" -ResourceGroup "my-rg" -Duration "9m"
+```
+
+# Azure Kubernetes Service Chaos
+```powershell
+.\scripts\run-chaos-experiment.ps1 -ExperimentType "aks" -ResourceGroup "my-rg" -Duration "12m"
+```
+
+# Azure Front Door Chaos
+```powershell
+.\scripts\run-chaos-experiment.ps1 -ExperimentType "front-door" -ResourceGroup "my-rg" -Duration "8m"
+```
+
+# Azure AI Services Chaos
+```powershell
+.\scripts\run-chaos-experiment.ps1 -ExperimentType "ai-services" -ResourceGroup "my-rg" -Duration "10m"
 ```
 
 # Region Outage Chaos

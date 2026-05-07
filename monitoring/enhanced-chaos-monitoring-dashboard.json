@@ -1,0 +1,526 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Enhanced Azure Chaos Engineering Monitoring",
+    "tags": ["azure", "chaos-engineering", "resilience"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Application Transactions Health",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "azure_sql_database_transactions_success_rate",
+            "legendFormat": "Success Rate"
+          },
+          {
+            "expr": "azure_sql_database_transaction_failures_rate",
+            "legendFormat": "Failure Rate"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": 95},
+                {"color": "yellow", "value": 90},
+                {"color": "red", "value": 85}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Database Connection Pool Status",
+        "type": "gauge",
+        "targets": [
+          {
+            "expr": "azure_sql_database_connection_pool_utilization",
+            "legendFormat": "Pool Utilization"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "max": 100,
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": 70},
+                {"color": "yellow", "value": 85},
+                {"color": "red", "value": 95}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "App Service Response Time",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "azure_app_service_response_time",
+            "legendFormat": "Response Time"
+          }
+        ],
+        "yAxes": [
+          {
+            "unit": "milliseconds",
+            "max": 5000
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+      },
+      {
+        "id": 4,
+        "title": "Service Bus Throughput",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "azure_service_bus_messages_success_rate",
+            "legendFormat": "Success Rate"
+          },
+          {
+            "expr": "azure_service_bus_dead_letter_rate",
+            "legendFormat": "Dead Letter Rate"
+          }
+        ],
+        "yAxes": [
+          {
+            "unit": "reqps"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+      },
+      {
+        "id": 5,
+        "title": "Kubernetes Pod Health & Restarts",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "kube_pod_info",
+            "legendFormat": "{{pod}}"
+          }
+        ],
+        "transformations": [
+          {
+            "id": "groupBy",
+            "options": {
+              "fields": ["pod", "namespace"],
+              "calculations": [
+                {"fieldName": "restarts", "type": "reduce", "reducer": "sum"},
+                {"fieldName": "status", "type": "reduce", "reducer": "last"}
+              ]
+            }
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16}
+      },
+      {
+        "id": 6,
+        "title": "Redis Cache Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "azure_redis_cache_hit_rate",
+            "legendFormat": "Hit Rate"
+          },
+          {
+            "expr": "azure_redis_cache_memory_usage",
+            "legendFormat": "Memory Usage"
+          }
+        ],
+        "yAxes": [
+          {
+            "unit": "percent"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16}
+      },
+      {
+        "id": 7,
+        "title": "Azure Functions Health",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "azure_functions_execution_success_rate",
+            "legendFormat": "Success Rate"
+          },
+          {
+            "expr": "azure_functions_execution_failures_rate",
+            "legendFormat": "Failure Rate"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": 95},
+                {"color": "yellow", "value": 90},
+                {"color": "red", "value": 85}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24}
+      },
+      {
+        "id": 8,
+        "title": "Key Vault Operations",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "azure_key_vault_operations_success_rate",
+            "legendFormat": "Success Rate"
+          },
+          {
+            "expr": "azure_key_vault_operations_failures_rate",
+            "legendFormat": "Failure Rate"
+          }
+        ],
+        "yAxes": [
+          {
+            "unit": "reqps"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24}
+      },
+      {
+        "id": 9,
+        "title": "Storage Account Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "azure_storage_account_availability",
+            "legendFormat": "Availability"
+          },
+          {
+            "expr": "azure_storage_account_egress",
+            "legendFormat": "Egress"
+          }
+        ],
+        "yAxes": [
+          {
+            "unit": "percent"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 32}
+      },
+      {
+        "id": 10,
+        "title": "SQL Database Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "azure_sql_database_cpu_percent",
+            "legendFormat": "CPU Usage"
+          },
+          {
+            "expr": "azure_sql_database_storage_percent",
+            "legendFormat": "Storage Usage"
+          }
+        ],
+        "yAxes": [
+          {
+            "unit": "percent"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 32}
+      },
+      {
+        "id": 11,
+        "title": "Virtual Network Health",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "azure_vnet_flow_logs_processed_rate",
+            "legendFormat": "Flow Logs"
+          },
+          {
+            "expr": "azure_vnet_nsg_rule_matches_rate",
+            "legendFormat": "NSG Matches"
+          }
+        ],
+        "yAxes": [
+          {
+            "unit": "reqps"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 40}
+      },
+      {
+        "id": 12,
+        "title": "Container Registry Operations",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "azure_container_registry_operations_success_rate",
+            "legendFormat": "Success Rate"
+          },
+          {
+            "expr": "azure_container_registry_storage_used",
+            "legendFormat": "Storage Used"
+          }
+        ],
+        "yAxes": [
+          {
+            "unit": "reqps"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 40}
+      },
+      {
+        "id": 13,
+        "title": "Load Balancer Health",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "azure_load_balancer_health_probe_status",
+            "legendFormat": "Health Status"
+          },
+          {
+            "expr": "azure_load_balancer_connection_count",
+            "legendFormat": "Connections"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": 1},
+                {"color": "red", "value": 0}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 48}
+      },
+      {
+        "id": 14,
+        "title": "Application Gateway Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "azure_application_gateway_response_time",
+            "legendFormat": "Response Time"
+          },
+          {
+            "expr": "azure_application_gateway_failed_requests_rate",
+            "legendFormat": "Failed Requests"
+          }
+        ],
+        "yAxes": [
+          {
+            "unit": "milliseconds"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 48}
+      },
+      {
+        "id": 15,
+        "title": "Cosmos DB Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "azure_cosmos_db_total_request_units",
+            "legendFormat": "Request Units"
+          },
+          {
+            "expr": "azure_cosmos_db_availability",
+            "legendFormat": "Availability"
+          }
+        ],
+        "yAxes": [
+          {
+            "unit": "percent"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 56}
+      },
+      {
+        "id": 16,
+        "title": "Event Hub Throughput",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "azure_event_hub_incoming_messages",
+            "legendFormat": "Incoming Messages"
+          },
+          {
+            "expr": "azure_event_hub_outgoing_messages",
+            "legendFormat": "Outgoing Messages"
+          }
+        ],
+        "yAxes": [
+          {
+            "unit": "reqps"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 56}
+      },
+      {
+        "id": 17,
+        "title": "API Management Health",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "azure_api_management_total_requests",
+            "legendFormat": "Total Requests"
+          },
+          {
+            "expr": "azure_api_management_response_time",
+            "legendFormat": "Response Time"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 64}
+      },
+      {
+        "id": 18,
+        "title": "AKS Cluster Health",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "azure_aks_cluster_cpu_utilization",
+            "legendFormat": "CPU Utilization"
+          },
+          {
+            "expr": "azure_aks_cluster_memory_utilization",
+            "legendFormat": "Memory Utilization"
+          }
+        ],
+        "yAxes": [
+          {
+            "unit": "percent"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 64}
+      },
+      {
+        "id": 19,
+        "title": "Front Door Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "azure_front_door_request_count",
+            "legendFormat": "Request Count"
+          },
+          {
+            "expr": "azure_front_door_response_status",
+            "legendFormat": "Response Status"
+          }
+        ],
+        "yAxes": [
+          {
+            "unit": "reqps"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 72}
+      },
+      {
+        "id": 20,
+        "title": "AI Services Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "azure_ai_services_api_call_count",
+            "legendFormat": "API Calls"
+          },
+          {
+            "expr": "azure_ai_services_api_latency",
+            "legendFormat": "API Latency"
+          }
+        ],
+        "yAxes": [
+          {
+            "unit": "milliseconds"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 72}
+      },
+      {
+        "id": 21,
+        "title": "Chaos Experiment Status",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "chaos_experiment_status",
+            "legendFormat": "{{experiment_type}}"
+          }
+        ],
+        "transformations": [
+          {
+            "id": "groupBy",
+            "options": {
+              "fields": ["experiment_type", "status", "start_time", "duration"],
+              "calculations": [
+                {"fieldName": "status", "type": "reduce", "reducer": "last"},
+                {"fieldName": "start_time", "type": "reduce", "reducer": "last"},
+                {"fieldName": "duration", "type": "reduce", "reducer": "last"}
+              ]
+            }
+          }
+        ],
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 80}
+      },
+      {
+        "id": 22,
+        "title": "System Resource Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "node_cpu_seconds_total",
+            "legendFormat": "CPU Usage"
+          },
+          {
+            "expr": "node_memory_MemAvailable_bytes",
+            "legendFormat": "Available Memory"
+          }
+        ],
+        "yAxes": [
+          {
+            "unit": "bytes"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 88}
+      },
+      {
+        "id": 23,
+        "title": "Network Traffic Patterns",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "container_network_receive_bytes_total",
+            "legendFormat": "Network In"
+          },
+          {
+            "expr": "container_network_transmit_bytes_total",
+            "legendFormat": "Network Out"
+          }
+        ],
+        "yAxes": [
+          {
+            "unit": "bytes"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 88}
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "30s"
+  }
+}

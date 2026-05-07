@@ -141,6 +141,24 @@ $experimentConfigs = @{
         RequiredResources = @("Microsoft.ApiManagement/service")
         Description = "Tests APIM resilience, API gateway functionality, and backend connectivity under failure conditions"
     }
+    "aks" = @{
+        Path = "scenarios\azure-aks\aks-chaos-experiment.yaml"
+        ValidationScript = "scenarios\azure-aks\aks-validation-script.ps1"
+        RequiredResources = @("Microsoft.ContainerService/managedClusters")
+        Description = "Tests AKS cluster resilience, node failures, and control plane issues"
+    }
+    "front-door" = @{
+        Path = "scenarios\azure-front-door\front-door-chaos-experiment.yaml"
+        ValidationScript = "scenarios\azure-front-door\front-door-validation-script.ps1"
+        RequiredResources = @("Microsoft.Network/frontdoors")
+        Description = "Tests Front Door resilience, routing, and WAF capabilities under failure conditions"
+    }
+    "ai-services" = @{
+        Path = "scenarios\azure-ai-services\ai-services-chaos-experiment.yaml"
+        ValidationScript = "scenarios\azure-ai-services\ai-services-validation-script.ps1"
+        RequiredResources = @("Microsoft.CognitiveServices/accounts")
+        Description = "Tests AI services resilience, API availability, and model performance under failure conditions"
+    }
 }
 
 # Validate experiment type
@@ -306,6 +324,18 @@ function Invoke-PreExperimentValidation {
             "api-management" {
                 $validationArgs.APIMServiceName = ""
                 $validationArgs.TestAPIName = "chaos-test-api"
+            }
+            "aks" {
+                $validationArgs.ClusterName = ""
+                $validationArgs.TestNamespace = "chaos-test-namespace"
+            }
+            "front-door" {
+                $validationArgs.FrontDoorName = ""
+                $validationArgs.TestBackendPool = "default-backend-pool"
+            }
+            "ai-services" {
+                $validationArgs.AIServiceName = ""
+                $validationArgs.DeploymentName = "chaos-test-deployment"
             }
         }
         
@@ -557,6 +587,18 @@ function Invoke-PostExperimentValidation {
             "api-management" {
                 $validationArgs.APIMServiceName = ""
                 $validationArgs.TestAPIName = "chaos-test-api"
+            }
+            "aks" {
+                $validationArgs.ClusterName = ""
+                $validationArgs.TestNamespace = "chaos-test-namespace"
+            }
+            "front-door" {
+                $validationArgs.FrontDoorName = ""
+                $validationArgs.TestBackendPool = "default-backend-pool"
+            }
+            "ai-services" {
+                $validationArgs.AIServiceName = ""
+                $validationArgs.DeploymentName = "chaos-test-deployment"
             }
         }
         

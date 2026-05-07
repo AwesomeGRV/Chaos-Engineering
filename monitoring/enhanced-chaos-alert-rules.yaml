@@ -1,0 +1,481 @@
+# Enhanced Chaos Engineering Alert Rules
+# Comprehensive alerting for all Azure services during chaos experiments
+
+groups:
+  - name: chaos-engineering-alerts
+    rules:
+      # Application Transactions Alerts
+      - alert: HighTransactionErrorRate
+        expr: azure_sql_database_transactions_error_rate > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          service: "sql-database"
+          chaos_type: "application-transactions"
+        annotations:
+          summary: "High transaction error rate detected during chaos experiment"
+          description: "Transaction error rate is {{ $value }} (threshold: 0.1) during chaos experiment"
+
+      - alert: DatabaseConnectionPoolExhaustion
+        expr: azure_sql_database_connection_pool_utilization > 0.9
+        for: 1m
+        labels:
+          severity: critical
+          service: "sql-database"
+          chaos_type: "application-transactions"
+        annotations:
+          summary: "Database connection pool exhausted during chaos experiment"
+          description: "Connection pool utilization is {{ $value }} (threshold: 0.9) during chaos experiment"
+
+      # App Service Alerts
+      - alert: AppServiceHighErrorRate
+        expr: azure_app_service_http_server_errors_rate > 0.05
+        for: 2m
+        labels:
+          severity: warning
+          service: "app-service"
+          chaos_type: "app-service"
+        annotations:
+          summary: "High error rate in App Service during chaos experiment"
+          description: "HTTP server error rate is {{ $value }} (threshold: 0.05) during chaos experiment"
+
+      - alert: AppServiceSlowResponse
+        expr: azure_app_service_response_time_average > 5000
+        for: 3m
+        labels:
+          severity: warning
+          service: "app-service"
+          chaos_type: "app-service"
+        annotations:
+          summary: "Slow response time in App Service during chaos experiment"
+          description: "Response time is {{ $value }}ms (threshold: 5000ms) during chaos experiment"
+
+      # Service Bus Alerts
+      - alert: ServiceBusQueueBacklog
+        expr: azure_service_bus_queue_size > 1000
+        for: 5m
+        labels:
+          severity: warning
+          service: "service-bus"
+          chaos_type: "service-bus"
+        annotations:
+          summary: "Service Bus queue backlog detected during chaos experiment"
+          description: "Queue size is {{ $value }} (threshold: 1000) during chaos experiment"
+
+      - alert: ServiceBusHighDeadLetterRate
+        expr: azure_service_bus_dead_letter_messages_rate > 0.1
+        for: 2m
+        labels:
+          severity: critical
+          service: "service-bus"
+          chaos_type: "service-bus"
+        annotations:
+          summary: "High dead letter rate in Service Bus during chaos experiment"
+          description: "Dead letter rate is {{ $value }} (threshold: 0.1) during chaos experiment"
+
+      # Kubernetes Pods Alerts
+      - alert: HighPodRestartRate
+        expr: rate(kube_pod_container_status_restarts_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          service: "kubernetes"
+          chaos_type: "pods"
+        annotations:
+          summary: "High pod restart rate during chaos experiment"
+          description: "Pod restart rate is {{ $value }} (threshold: 0.1) during chaos experiment"
+
+      - alert: PodNotReady
+        expr: kube_pod_status_ready{condition="true"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: "kubernetes"
+          chaos_type: "pods"
+        annotations:
+          summary: "Pod not ready during chaos experiment"
+          description: "Pod {{ $labels.pod }} is not ready during chaos experiment"
+
+      # Redis Cache Alerts
+      - alert: RedisLowHitRate
+        expr: azure_redis_cache_hit_rate < 0.8
+        for: 3m
+        labels:
+          severity: warning
+          service: "redis-cache"
+          chaos_type: "redis"
+        annotations:
+          summary: "Low Redis cache hit rate during chaos experiment"
+          description: "Cache hit rate is {{ $value }} (threshold: 0.8) during chaos experiment"
+
+      - alert: RedisHighMemoryUsage
+        expr: azure_redis_cache_memory_usage > 0.9
+        for: 2m
+        labels:
+          severity: critical
+          service: "redis-cache"
+          chaos_type: "redis"
+        annotations:
+          summary: "High Redis memory usage during chaos experiment"
+          description: "Memory usage is {{ $value }} (threshold: 0.9) during chaos experiment"
+
+      # Azure Functions Alerts
+      - alert: FunctionsHighErrorRate
+        expr: azure_functions_function_execution_units_rate > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          service: "azure-functions"
+          chaos_type: "azure-functions"
+        annotations:
+          summary: "High error rate in Azure Functions during chaos experiment"
+          description: "Function execution error rate is {{ $value }} (threshold: 0.1) during chaos experiment"
+
+      - alert: FunctionsHighMemoryUsage
+        expr: azure_functions_memory_usage > 0.85
+        for: 3m
+        labels:
+          severity: warning
+          service: "azure-functions"
+          chaos_type: "azure-functions"
+        annotations:
+          summary: "High memory usage in Azure Functions during chaos experiment"
+          description: "Memory usage is {{ $value }} (threshold: 0.85) during chaos experiment"
+
+      # Key Vault Alerts
+      - alert: KeyVaultHighErrorRate
+        expr: azure_key_vault_api_error_rate > 0.05
+        for: 2m
+        labels:
+          severity: warning
+          service: "key-vault"
+          chaos_type: "key-vault"
+        annotations:
+          summary: "High error rate in Key Vault during chaos experiment"
+          description: "API error rate is {{ $value }} (threshold: 0.05) during chaos experiment"
+
+      - alert: KeyVaultThrottling
+        expr: azure_key_vault_throttled_requests_rate > 0.1
+        for: 1m
+        labels:
+          severity: warning
+          service: "key-vault"
+          chaos_type: "key-vault"
+        annotations:
+          summary: "Key Vault throttling detected during chaos experiment"
+          description: "Throttled requests rate is {{ $value }} (threshold: 0.1) during chaos experiment"
+
+      # Storage Account Alerts
+      - alert: StorageHighErrorRate
+        expr: azure_storage_account_error_rate > 0.05
+        for: 2m
+        labels:
+          severity: warning
+          service: "storage-account"
+          chaos_type: "azure-storage"
+        annotations:
+          summary: "High error rate in Storage Account during chaos experiment"
+          description: "Error rate is {{ $value }} (threshold: 0.05) during chaos experiment"
+
+      - alert: StorageLowAvailability
+        expr: azure_storage_account_availability < 0.99
+        for: 3m
+        labels:
+          severity: critical
+          service: "storage-account"
+          chaos_type: "azure-storage"
+        annotations:
+          summary: "Low availability in Storage Account during chaos experiment"
+          description: "Availability is {{ $value }} (threshold: 0.99) during chaos experiment"
+
+      # Virtual Network Alerts
+      - alert: VNetHighNSGDrops
+        expr: azure_vnet_nsg_rule_drops_rate > 100
+        for: 2m
+        labels:
+          severity: warning
+          service: "virtual-network"
+          chaos_type: "virtual-network"
+        annotations:
+          summary: "High NSG rule drops during chaos experiment"
+          description: "NSG rule drop rate is {{ $value }} (threshold: 100) during chaos experiment"
+
+      - alert: VNetConnectivityIssues
+        expr: azure_vnet_flow_log_connection_failures_rate > 50
+        for: 3m
+        labels:
+          severity: warning
+          service: "virtual-network"
+          chaos_type: "virtual-network"
+        annotations:
+          summary: "Connectivity issues in Virtual Network during chaos experiment"
+          description: "Connection failure rate is {{ $value }} (threshold: 50) during chaos experiment"
+
+      # Container Registry Alerts
+      - alert: ACRHighErrorRate
+        expr: azure_container_registry_error_rate > 0.05
+        for: 2m
+        labels:
+          severity: warning
+          service: "container-registry"
+          chaos_type: "container-registry"
+        annotations:
+          summary: "High error rate in Container Registry during chaos experiment"
+          description: "Error rate is {{ $value }} (threshold: 0.05) during chaos experiment"
+
+      - alert: ACRStorageHighUsage
+        expr: azure_container_registry_storage_usage > 0.9
+        for: 3m
+        labels:
+          severity: warning
+          service: "container-registry"
+          chaos_type: "container-registry"
+        annotations:
+          summary: "High storage usage in Container Registry during chaos experiment"
+          description: "Storage usage is {{ $value }} (threshold: 0.9) during chaos experiment"
+
+      # Load Balancer Alerts
+      - alert: LoadBalancerBackendUnhealthy
+        expr: azure_load_balancer_health_probe_status == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: "load-balancer"
+          chaos_type: "load-balancer"
+        annotations:
+          summary: "Load Balancer backend unhealthy during chaos experiment"
+          description: "Backend health probe failed during chaos experiment"
+
+      - alert: LoadBalancerHighConnectionCount
+        expr: azure_load_balancer_connection_count > 10000
+        for: 5m
+        labels:
+          severity: warning
+          service: "load-balancer"
+          chaos_type: "load-balancer"
+        annotations:
+          summary: "High connection count in Load Balancer during chaos experiment"
+          description: "Connection count is {{ $value }} (threshold: 10000) during chaos experiment"
+
+      # Application Gateway Alerts
+      - alert: AppGatewayHighErrorRate
+        expr: azure_application_gateway_failed_requests_rate > 0.05
+        for: 2m
+        labels:
+          severity: warning
+          service: "application-gateway"
+          chaos_type: "application-gateway"
+        annotations:
+          summary: "High error rate in Application Gateway during chaos experiment"
+          description: "Failed request rate is {{ $value }} (threshold: 0.05) during chaos experiment"
+
+      - alert: AppGatewaySlowResponse
+        expr: azure_application_gateway_response_time_average > 3000
+        for: 3m
+        labels:
+          severity: warning
+          service: "application-gateway"
+          chaos_type: "application-gateway"
+        annotations:
+          summary: "Slow response time in Application Gateway during chaos experiment"
+          description: "Response time is {{ $value }}ms (threshold: 3000ms) during chaos experiment"
+
+      # Cosmos DB Alerts
+      - alert: CosmosDBHighErrorRate
+        expr: azure_cosmos_db_error_rate > 0.05
+        for: 2m
+        labels:
+          severity: warning
+          service: "cosmos-db"
+          chaos_type: "cosmos-db"
+        annotations:
+          summary: "High error rate in Cosmos DB during chaos experiment"
+          description: "Error rate is {{ $value }} (threshold: 0.05) during chaos experiment"
+
+      - alert: CosmosDBLowAvailability
+        expr: azure_cosmos_db_availability < 0.99
+        for: 3m
+        labels:
+          severity: critical
+          service: "cosmos-db"
+          chaos_type: "cosmos-db"
+        annotations:
+          summary: "Low availability in Cosmos DB during chaos experiment"
+          description: "Availability is {{ $value }} (threshold: 0.99) during chaos experiment"
+
+      # Event Hub Alerts
+      - alert: EventHubHighErrorRate
+        expr: azure_event_hub_error_rate > 0.05
+        for: 2m
+        labels:
+          severity: warning
+          service: "event-hub"
+          chaos_type: "event-hub"
+        annotations:
+          summary: "High error rate in Event Hub during chaos experiment"
+          description: "Error rate is {{ $value }} (threshold: 0.05) during chaos experiment"
+
+      - alert: EventHubThrottling
+        expr: azure_event_hub_throttled_requests_rate > 0.1
+        for: 1m
+        labels:
+          severity: warning
+          service: "event-hub"
+          chaos_type: "event-hub"
+        annotations:
+          summary: "Event Hub throttling detected during chaos experiment"
+          description: "Throttled requests rate is {{ $value }} (threshold: 0.1) during chaos experiment"
+
+      # API Management Alerts
+      - alert: APIMHighErrorRate
+        expr: azure_api_management_error_rate > 0.05
+        for: 2m
+        labels:
+          severity: warning
+          service: "api-management"
+          chaos_type: "api-management"
+        annotations:
+          summary: "High error rate in API Management during chaos experiment"
+          description: "Error rate is {{ $value }} (threshold: 0.05) during chaos experiment"
+
+      - alert: APIMSlowResponse
+        expr: azure_api_management_response_time_average > 2000
+        for: 3m
+        labels:
+          severity: warning
+          service: "api-management"
+          chaos_type: "api-management"
+        annotations:
+          summary: "Slow response time in API Management during chaos experiment"
+          description: "Response time is {{ $value }}ms (threshold: 2000ms) during chaos experiment"
+
+      # AKS Alerts
+      - alert: AKSHighCPUUtilization
+        expr: azure_aks_cluster_cpu_utilization > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          service: "aks"
+          chaos_type: "aks"
+        annotations:
+          summary: "High CPU utilization in AKS cluster during chaos experiment"
+          description: "CPU utilization is {{ $value }} (threshold: 0.8) during chaos experiment"
+
+      - alert: AKSHighMemoryUtilization
+        expr: azure_aks_cluster_memory_utilization > 0.85
+        for: 3m
+        labels:
+          severity: warning
+          service: "aks"
+          chaos_type: "aks"
+        annotations:
+          summary: "High memory utilization in AKS cluster during chaos experiment"
+          description: "Memory utilization is {{ $value }} (threshold: 0.85) during chaos experiment"
+
+      # Front Door Alerts
+      - alert: FrontDoorHighErrorRate
+        expr: azure_front_door_error_rate > 0.05
+        for: 2m
+        labels:
+          severity: warning
+          service: "front-door"
+          chaos_type: "front-door"
+        annotations:
+          summary: "High error rate in Front Door during chaos experiment"
+          description: "Error rate is {{ $value }} (threshold: 0.05) during chaos experiment"
+
+      - alert: FrontDoorSlowResponse
+        expr: azure_front_door_response_time_average > 1000
+        for: 3m
+        labels:
+          severity: warning
+          service: "front-door"
+          chaos_type: "front-door"
+        annotations:
+          summary: "Slow response time in Front Door during chaos experiment"
+          description: "Response time is {{ $value }}ms (threshold: 1000ms) during chaos experiment"
+
+      # AI Services Alerts
+      - alert: AIServicesHighErrorRate
+        expr: azure_ai_services_error_rate > 0.05
+        for: 2m
+        labels:
+          severity: warning
+          service: "ai-services"
+          chaos_type: "ai-services"
+        annotations:
+          summary: "High error rate in AI Services during chaos experiment"
+          description: "Error rate is {{ $value }} (threshold: 0.05) during chaos experiment"
+
+      - alert: AIServicesHighLatency
+        expr: azure_ai_services_api_latency > 5000
+        for: 3m
+        labels:
+          severity: warning
+          service: "ai-services"
+          chaos_type: "ai-services"
+        annotations:
+          summary: "High latency in AI Services during chaos experiment"
+          description: "API latency is {{ $value }}ms (threshold: 5000ms) during chaos experiment"
+
+      # Chaos Experiment Specific Alerts
+      - alert: ChaosExperimentRunning
+        expr: chaos_experiment_status == 1
+        for: 0m
+        labels:
+          severity: info
+          service: "chaos-engineering"
+        annotations:
+          summary: "Chaos experiment is running"
+          description: "Chaos experiment {{ $labels.experiment_type }} is running on {{ $labels.resource_group }}"
+
+      - alert: ChaosExperimentFailed
+        expr: chaos_experiment_status == 2
+        for: 0m
+        labels:
+          severity: critical
+          service: "chaos-engineering"
+        annotations:
+          summary: "Chaos experiment failed"
+          description: "Chaos experiment {{ $labels.experiment_type }} failed on {{ $labels.resource_group }}"
+
+      - alert: ChaosExperimentRecoveryFailure
+        expr: chaos_experiment_recovery_status == 0
+        for: 5m
+        labels:
+          severity: critical
+          service: "chaos-engineering"
+        annotations:
+          summary: "System failed to recover after chaos experiment"
+          description: "System failed to recover after chaos experiment {{ $labels.experiment_type }} on {{ $labels.resource_group }}"
+
+      # System Resource Alerts
+      - alert: HighSystemCPU
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 85
+        for: 3m
+        labels:
+          severity: warning
+          service: "system"
+        annotations:
+          summary: "High system CPU usage during chaos experiment"
+          description: "CPU usage is {{ $value }}% (threshold: 85%) during chaos experiment"
+
+      - alert: HighSystemMemory
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > 0.9
+        for: 2m
+        labels:
+          severity: critical
+          service: "system"
+        annotations:
+          summary: "High system memory usage during chaos experiment"
+          description: "Memory usage is {{ $value }} (threshold: 0.9) during chaos experiment"
+
+      - alert: HighNetworkLatency
+        expr: avg_over_time(node_network_receive_bytes_total[5m]) > 1000000
+        for: 2m
+        labels:
+          severity: warning
+          service: "network"
+        annotations:
+          summary: "High network latency detected during chaos experiment"
+          description: "Network latency is elevated during chaos experiment"
