@@ -1,0 +1,327 @@
+# Azure AI Services Chaos Experiment Configuration
+# Tests AI services resilience, API availability, and model performance under failure conditions
+
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: ai-services-chaos-experiment
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: ai-services-api-throttling
+      type: AIServicesAPIThrottling
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.CognitiveServices/accounts"
+        targetResources:
+          - ""  # AI Services Account Resource ID
+        throttlingType: "rate_limit_exceeded"
+        
+    - name: ai-services-model-deployment-failure
+      type: AIServicesModelDeploymentFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.CognitiveServices/accounts/deployments"
+        targetResources:
+          - ""  # Model Deployment Resource ID
+        failureType: "model_unavailable"
+        
+    - name: ai-services-key-authentication-failure
+      type: AIServicesKeyAuthenticationFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.CognitiveServices/accounts"
+        targetResources:
+          - ""  # AI Services Account Resource ID
+        failureType: "key_validation_error"
+        
+    - name: ai-services-region-failover
+      type: AIServicesRegionFailover
+      duration: "PT4M"
+      parameters:
+        targetResourceType: "Microsoft.CognitiveServices/accounts"
+        targetResources:
+          - ""  # AI Services Account Resource ID
+        failoverType: "primary_region_outage"
+
+---
+# Azure AI Services Advanced Chaos Scenarios
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: ai-services-advanced-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: ai-services-content-moderation-failure
+      type: AIServicesContentModerationFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.CognitiveServices/accounts"
+        targetResources:
+          - ""  # AI Services Account Resource ID
+        failureType: "moderation_service_unavailable"
+        
+    - name: ai-services-speech-to-text-failure
+      type: AIServicesSpeechToTextFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.CognitiveServices/accounts"
+        targetResources:
+          - ""  # AI Services Account Resource ID
+        failureType: "speech_recognition_timeout"
+        
+    - name: ai-services-text-to-speech-failure
+      type: AIServicesTextToSpeechFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.CognitiveServices/accounts"
+        targetResources:
+          - ""  # AI Services Account Resource ID
+        failureType: "voice_synthesis_error"
+        
+    - name: ai-services-translation-failure
+      type: AIServicesTranslationFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.CognitiveServices/accounts"
+        targetResources:
+          - ""  # AI Services Account Resource ID
+        failureType: "translation_model_unavailable"
+
+---
+# Azure OpenAI Service Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: azure-openai-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: openai-model-failure
+      type: OpenAIModelFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.CognitiveServices/accounts/deployments"
+        targetResources:
+          - ""  # OpenAI Deployment Resource ID
+        failureType: "model_overloaded"
+        
+    - name: openai-token-limit-exceeded
+      type: OpenAITokenLimitExceeded
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.CognitiveServices/accounts/deployments"
+        targetResources:
+          - ""  # OpenAI Deployment Resource ID
+        limitType: "context_window_exceeded"
+        
+    - name: openai-fine-tuning-failure
+      type: OpenAIFineTuningFailure
+      duration: "PT5M"
+      parameters:
+        targetResourceType: "Microsoft.CognitiveServices/accounts"
+        targetResources:
+          - ""  # OpenAI Account Resource ID
+        failureType: "training_job_failed"
+        
+    - name: openai-rag-failure
+      type: OpenAIRAGFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.CognitiveServices/accounts"
+        targetResources:
+          - ""  # OpenAI Account Resource ID
+        failureType: "retrieval_timeout"
+
+---
+# Azure AI Search Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: azure-ai-search-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: ai-search-index-failure
+      type: AISearchIndexFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Search/searchServices"
+        targetResources:
+          - ""  # AI Search Service Resource ID
+        failureType: "index_unavailable"
+        
+    - name: ai-search-query-failure
+      type: AISearchQueryFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Search/searchServices"
+        targetResources:
+          - ""  # AI Search Service Resource ID
+        failureType: "query_timeout"
+        
+    - name: ai-search-skillset-failure
+      type: AISearchSkillsetFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Search/searchServices/skillsets"
+        targetResources:
+          - ""  # Skillset Resource ID
+        failureType: "skill_execution_error"
+        
+    - name: ai-search-indexer-failure
+      type: AISearchIndexerFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Search/searchServices/indexers"
+        targetResources:
+          - ""  # Indexer Resource ID
+        failureType: "data_source_unavailable"
+
+---
+# Azure AI Services Network Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: ai-services-network-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: ai-services-network-partition
+      type: AIServicesNetworkPartition
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.CognitiveServices/accounts"
+        targetResources:
+          - ""  # AI Services Account Resource ID
+        partitionType: "region_isolation"
+        
+    - name: ai-services-dns-resolution-failure
+      type: AIServicesDNSResolutionFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.CognitiveServices/accounts"
+        targetResources:
+          - ""  # AI Services Account Resource ID
+        failureType: "endpoint_unreachable"
+        
+    - name: ai-services-cdn-failure
+      type: AIServicesCDNFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.CognitiveServices/accounts"
+        targetResources:
+          - ""  # AI Services Account Resource ID
+        failureType: "cdn_cache_miss"
+
+---
+# Azure AI Services Security Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: ai-services-security-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: ai-services-managed-identity-failure
+      type: AIServicesManagedIdentityFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.CognitiveServices/accounts"
+        targetResources:
+          - ""  # AI Services Account Resource ID
+        failureType: "identity_token_unavailable"
+        
+    - name: ai-services-private-endpoint-failure
+      type: AIServicesPrivateEndpointFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.CognitiveServices/accounts"
+        targetResources:
+          - ""  # AI Services Account Resource ID
+        failureType: "endpoint_unreachable"
+        
+    - name: ai-services-vnet-integration-failure
+      type: AIServicesVNetIntegrationFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.CognitiveServices/accounts"
+        targetResources:
+          - ""  # AI Services Account Resource ID
+        failureType: "network_access_denied"
+        
+    - name: ai-services-encryption-key-failure
+      type: AIServicesEncryptionKeyFailure
+      duration: "PT1M"
+      parameters:
+        targetResourceType: "Microsoft.CognitiveServices/accounts"
+        targetResources:
+          - ""  # AI Services Account Resource ID
+        failureType: "customer_managed_key_unavailable"
+
+---
+# Kubernetes equivalent for AI Services access
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: ai-services-network-chaos
+  namespace: chaos-testing
+spec:
+  action: delay
+  mode: one
+  selector:
+    labelSelectors:
+      app: "ai-services-client"
+    namespaces:
+      - "production"
+  delay:
+    latency: "500ms"
+    correlation: "25"
+    jitter: "150ms"
+  target:
+    externalTargets:
+      - "*.cognitiveservices.azure.com"
+      - "*.openai.azure.com"
+      - "*.search.windows.net"
+    ports: [443]
+  duration: "3m"
+
+---
+# AI Services Application Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: ai-services-app-chaos
+  namespace: chaos-testing
+spec:
+  action: pod-failure
+  mode: fixed-percent
+  value: "20"
+  selector:
+    labelSelectors:
+      app: "ai-application"
+    namespaces:
+      - "production"
+  duration: "2m"
+  gracePeriod: 0
+
+---
+# AI Services Memory Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: StressChaos
+metadata:
+  name: ai-services-memory-chaos
+  namespace: chaos-testing
+spec:
+  mode: one
+  selector:
+    labelSelectors:
+      app: "ai-model-server"
+    namespaces:
+      - "production"
+  stress:
+    memory:
+      workers: 2
+      size: "1GB"
+  duration: "3m"

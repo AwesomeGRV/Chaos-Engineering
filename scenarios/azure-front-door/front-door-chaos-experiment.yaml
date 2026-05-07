@@ -1,0 +1,298 @@
+# Azure Front Door Chaos Experiment Configuration
+# Tests Front Door resilience, routing, and WAF capabilities under failure conditions
+
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: front-door-chaos-experiment
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: front-door-backend-pool-failure
+      type: FrontDoorBackendPoolFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Network/frontdoors"
+        targetResources:
+          - ""  # Front Door Resource ID
+        backendPoolName: "default-backend-pool"
+        failureType: "backend_unavailable"
+        
+    - name: front-door-routing-rule-failure
+      type: FrontDoorRoutingRuleFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/frontdoors"
+        targetResources:
+          - ""  # Front Door Resource ID
+        routingRuleName: "default-routing-rule"
+        failureType: "rule_disabled"
+        
+    - name: front-door-health-probe-failure
+      type: FrontDoorHealthProbeFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/frontdoors"
+        targetResources:
+          - ""  # Front Door Resource ID
+        healthProbeName: "default-health-probe"
+        failureType: "probe_timeout"
+        
+    - name: front-door-cdn-failure
+      type: FrontDoorCDNFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Network/frontdoors"
+        targetResources:
+          - ""  # Front Door Resource ID
+        failureType: "cdn_cache_miss"
+
+---
+# Azure Front Door Advanced Chaos Scenarios
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: front-door-advanced-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: front-door-waf-rule-failure
+      type: FrontDoorWAFFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/frontdoors"
+        targetResources:
+          - ""  # Front Door Resource ID
+        wafPolicyName: "default-waf-policy"
+        failureType: "rule_evaluation_error"
+        
+    - name: front-door-geo-routing-failure
+      type: FrontDoorGeoRoutingFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Network/frontdoors"
+        targetResources:
+          - ""  # Front Door Resource ID
+        failureType: "geo_location_mismatch"
+        
+    - name: front-door-ssl-certificate-failure
+      type: FrontDoorSSLCertificateFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/frontdoors"
+        targetResources:
+          - ""  # Front Door Resource ID
+        failureType: "certificate_validation_error"
+        
+    - name: front-door-compression-failure
+      type: FrontDoorCompressionFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/frontdoors"
+        targetResources:
+          - ""  # Front Door Resource ID
+        failureType: "compression_disabled"
+
+---
+# Azure Front Door Performance Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: front-door-performance-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: front-door-cache-invalidation-failure
+      type: FrontDoorCacheInvalidationFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/frontdoors"
+        targetResources:
+          - ""  # Front Door Resource ID
+        failureType: "invalidation_timeout"
+        
+    - name: front-door-rate-limit-breach
+      type: FrontDoorRateLimitBreach
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/frontdoors"
+        targetResources:
+          - ""  # Front Door Resource ID
+        failureType: "rate_limit_disabled"
+        
+    - name: front-door-response-compression-failure
+      type: FrontDoorResponseCompressionFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/frontdoors"
+        targetResources:
+          - ""  # Front Door Resource ID
+        failureType: "compression_bypass"
+        
+    - name: front-door-url-rewrite-failure
+      type: FrontDoorURLRewriteFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/frontdoors"
+        targetResources:
+          - ""  # Front Door Resource ID
+        failureType: "rewrite_rule_disabled"
+
+---
+# Azure Front Door Security Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: front-door-security-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: front-door-waf-false-positives
+      type: FrontDoorWAFFalsePositives
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/frontdoors"
+        targetResources:
+          - ""  # Front Door Resource ID
+        wafPolicyName: "default-waf-policy"
+        falsePositiveRate: 50
+        
+    - name: front-door-dos-protection-failure
+      type: FrontDoorDoSProtectionFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Network/frontdoors"
+        targetResources:
+          - ""  # Front Door Resource ID
+        failureType: "protection_disabled"
+        
+    - name: front-door-bot-protection-failure
+      type: FrontDoorBotProtectionFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/frontdoors"
+        targetResources:
+          - ""  # Front Door Resource ID
+        failureType: "bot_detection_bypass"
+        
+    - name: front-door-access-restriction-failure
+      type: FrontDoorAccessRestrictionFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/frontdoors"
+        targetResources:
+          - ""  # Front Door Resource ID
+        failureType: "restriction_bypass"
+
+---
+# Azure Front Door Multi-Region Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: front-door-multi-region-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: front-door-region-failover-failure
+      type: FrontDoorRegionFailoverFailure
+      duration: "PT4M"
+      parameters:
+        targetResourceType: "Microsoft.Network/frontdoors"
+        targetResources:
+          - ""  # Front Door Resource ID
+        failureType: "failover_timeout"
+        
+    - name: front-door-latency-based-routing-failure
+      type: FrontDoorLatencyBasedRoutingFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Network/frontdoors"
+        targetResources:
+          - ""  # Front Door Resource ID
+        failureType: "latency_measurement_error"
+        
+    - name: front-door-weighted-routing-failure
+      type: FrontDoorWeightedRoutingFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/frontdoors"
+        targetResources:
+          - ""  # Front Door Resource ID
+        failureType: "weight_calculation_error"
+        
+    - name: front-door-priority-routing-failure
+      type: FrontDoorPriorityRoutingFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Network/frontdoors"
+        targetResources:
+          - ""  # Front Door Resource ID
+        failureType: "priority_evaluation_error"
+
+---
+# Kubernetes equivalent for Front Door access
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: front-door-network-chaos
+  namespace: chaos-testing
+spec:
+  action: delay
+  mode: one
+  selector:
+    labelSelectors:
+      app: "front-door-client"
+    namespaces:
+      - "production"
+  delay:
+    latency: "300ms"
+    correlation: "25"
+    jitter: "100ms"
+  target:
+    externalTargets:
+      - "*.azurefd.net"
+      - "*.frontdoor.azure.com"
+    ports: [80, 443]
+  duration: "3m"
+
+---
+# Front Door Backend Service Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: front-door-backend-chaos
+  namespace: chaos-testing
+spec:
+  action: pod-failure
+  mode: fixed-percent
+  value: "30"
+  selector:
+    labelSelectors:
+      app: "backend-service"
+    namespaces:
+      - "production"
+  duration: "2m"
+  gracePeriod: 0
+
+---
+# Front Door WAF Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: StressChaos
+metadata:
+  name: front-door-waf-chaos
+  namespace: chaos-testing
+spec:
+  mode: one
+  selector:
+    labelSelectors:
+      app: "waf-service"
+    namespaces:
+      - "production"
+  stress:
+    cpu:
+      workers: 4
+      load: 85
+    memory:
+      workers: 2
+      size: "512MB"
+  duration: "4m"

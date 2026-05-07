@@ -1,0 +1,320 @@
+# Azure Kubernetes Service (AKS) Chaos Experiment Configuration
+# Tests AKS cluster resilience, node failures, and control plane issues
+
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: aks-chaos-experiment
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: aks-node-drain
+      type: AKSNodeDrain
+      duration: "PT5M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerService/managedClusters"
+        targetResources:
+          - ""  # AKS Cluster Resource ID
+        nodeCount: 2
+        drainType: "graceful"
+        
+    - name: aks-node-restart
+      type: AKSNodeRestart
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerService/managedClusters"
+        targetResources:
+          - ""  # AKS Cluster Resource ID
+        nodeCount: 1
+        restartType: "force"
+        
+    - name: aks-control-plane-failure
+      type: AKSControlPlaneFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerService/managedClusters"
+        targetResources:
+          - ""  # AKS Cluster Resource ID
+        failureType: "api_server_unavailable"
+        
+    - name: aks-network-plugin-failure
+      type: AKSNetworkPluginFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerService/managedClusters"
+        targetResources:
+          - ""  # AKS Cluster Resource ID
+        pluginType: "azure-cni"
+        failureType: "connectivity_loss"
+
+---
+# Azure Kubernetes Service Advanced Chaos Scenarios
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: aks-advanced-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: aks-cluster-autoscaler-failure
+      type: AKSClusterAutoscalerFailure
+      duration: "PT4M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerService/managedClusters"
+        targetResources:
+          - ""  # AKS Cluster Resource ID
+        failureType: "scaling_disabled"
+        
+    - name: aks-load-balancer-failure
+      type: AKSLoadBalancerFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Network/loadBalancers"
+        targetResources:
+          - ""  # AKS Load Balancer Resource ID
+        failureType: "frontend_ip_unavailable"
+        
+    - name: aks-virtual-node-failure
+      type: AKSVirtualNodeFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerService/managedClusters"
+        targetResources:
+          - ""  # AKS Cluster Resource ID
+        nodePoolType: "virtual"
+        failureType: "pod_scheduling_failure"
+        
+    - name: aks-azure-policy-enforcement-failure
+      type: AKSAzurePolicyEnforcementFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerService/managedClusters"
+        targetResources:
+          - ""  # AKS Cluster Resource ID
+        failureType: "policy_evaluation_disabled"
+
+---
+# Azure Kubernetes Service Storage Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: aks-storage-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: aks-persistent-volume-failure
+      type: AKSPersistentVolumeFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Compute/disks"
+        targetResources:
+          - ""  # AKS Node Disk Resource ID
+        failureType: "disk_read_only"
+        
+    - name: aks-azure-disk-detachment
+      type: AKSAzureDiskDetachment
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.Compute/disks"
+        targetResources:
+          - ""  # AKS Azure Disk Resource ID
+        detachmentType: "force_detach"
+        
+    - name: aks-azure-files-unavailable
+      type: AKSAzureFilesUnavailable
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.Storage/storageAccounts"
+        targetResources:
+          - ""  # Storage Account Resource ID
+        unavailabilityType: "share_unavailable"
+        
+    - name: aks-container-storage-interface-failure
+      type: AKSContainerStorageInterfaceFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerService/managedClusters"
+        targetResources:
+          - ""  # AKS Cluster Resource ID
+        failureType: "csi_driver_crash"
+
+---
+# Azure Kubernetes Service Security Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: aks-security-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: aks-aad-integration-failure
+      type: AKSAADIntegrationFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerService/managedClusters"
+        targetResources:
+          - ""  # AKS Cluster Resource ID
+        failureType: "token_validation_error"
+        
+    - name: aks-managed-identity-failure
+      type: AKSManagedIdentityFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerService/managedClusters"
+        targetResources:
+          - ""  # AKS Cluster Resource ID
+        failureType: "identity_token_unavailable"
+        
+    - name: aks-network-policy-enforcement-failure
+      type: AKSNetworkPolicyEnforcementFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerService/managedClusters"
+        targetResources:
+          - ""  # AKS Cluster Resource ID
+        failureType: "policy_bypass"
+        
+    - name: aks-pod-security-policy-failure
+      type: AKSPodSecurityPolicyFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerService/managedClusters"
+        targetResources:
+          - ""  # AKS Cluster Resource ID
+        failureType: "policy_enforcement_disabled"
+
+---
+# Azure Kubernetes Service Monitoring Chaos
+apiVersion: chaosstudio.io/v1beta1
+kind: Experiment
+metadata:
+  name: aks-monitoring-chaos
+  namespace: chaos-testing
+spec:
+  steps:
+    - name: aks-container-insights-failure
+      type: AKSContainerInsightsFailure
+      duration: "PT3M"
+      parameters:
+        targetResourceType: "Microsoft.OperationalInsights/workspaces"
+        targetResources:
+          - ""  # Log Analytics Workspace Resource ID
+        failureType: "data_collection_stopped"
+        
+    - name: aks-prometheus-scrape-failure
+      type: AKSPrometheusScrapeFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerService/managedClusters"
+        targetResources:
+          - ""  # AKS Cluster Resource ID
+        failureType: "scrape_endpoint_unavailable"
+        
+    - name: aks-azure-monitor-metrics-failure
+      type: AKSAzureMonitorMetricsFailure
+      duration: "PT2M"
+      parameters:
+        targetResourceType: "Microsoft.ContainerService/managedClusters"
+        targetResources:
+          - ""  # AKS Cluster Resource ID
+        failureType: "metrics_collection_disabled"
+
+---
+# Kubernetes equivalent for AKS cluster chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NodeChaos
+metadata:
+  name: aks-node-chaos
+  namespace: chaos-testing
+spec:
+  action: node-failure
+  mode: one
+  selector:
+    labelSelectors:
+      "kubernetes.io/hostname": "aks-nodepool1-12345"
+  duration: "3m"
+  gracePeriod: 30
+
+---
+# AKS Pod Disruption Budget Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: aks-pdb-chaos
+  namespace: chaos-testing
+spec:
+  action: pod-failure
+  mode: fixed-percent
+  value: "30"
+  selector:
+    labelSelectors:
+      app: "critical-service"
+    namespaces:
+      - "production"
+  duration: "2m"
+  gracePeriod: 0
+
+---
+# AKS Network Policy Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: aks-network-policy-chaos
+  namespace: chaos-testing
+spec:
+  action: partition
+  mode: fixed-percent
+  value: "20"
+  selector:
+    labelSelectors:
+      app: "frontend"
+    namespaces:
+      - "production"
+  target:
+    selector:
+      labelSelectors:
+        app: "backend"
+    namespaces:
+      - "production"
+  duration: "3m"
+
+---
+# AKS Storage Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: IOChaos
+metadata:
+  name: aks-storage-chaos
+  namespace: chaos-testing
+spec:
+  action: disk
+  mode: one
+  selector:
+    labelSelectors:
+      app: "database"
+    namespaces:
+      - "production"
+  delay: "100ms"
+  errno: 5
+  percent: 50
+  duration: "2m"
+
+---
+# AKS DNS Chaos
+apiVersion: chaos-mesh.org/v1alpha1
+kind: DNSChaos
+metadata:
+  name: aks-dns-chaos
+  namespace: chaos-testing
+spec:
+  action: error
+  mode: one
+  selector:
+    labelSelectors:
+      app: "external-api-client"
+    namespaces:
+      - "production"
+  patterns:
+    - "api.external-service.com"
+    - "storage.azure.com"
+  percent: 100
+  duration: "2m"
